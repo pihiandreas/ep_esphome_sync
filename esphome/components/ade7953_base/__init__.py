@@ -146,16 +146,6 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_ENERGY,
             state_class=STATE_CLASS_TOTAL_INCREASING,
         ),
-        # cv.Optional(CONF_REVERSE_ACTIVE_ENERGY): cv.maybe_simple_value(
-        #     sensor.sensor_schema(
-        #         unit_of_measurement=UNIT_VOLT_AMPS_REACTIVE_HOURS,
-        #         accuracy_decimals=2,
-        #         device_class=DEVICE_CLASS_ENERGY,
-        #         state_class=STATE_CLASS_TOTAL_INCREASING,
-        #     ),
-        #     key=CONF_NAME,
-        # ),
-
         cv.Optional(
             CONF_VOLTAGE_PGA_GAIN,
             default="1x",
