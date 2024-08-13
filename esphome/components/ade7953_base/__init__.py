@@ -24,6 +24,7 @@ from esphome.const import (
     UNIT_WATT,
     UNIT_VOLT_AMPS_REACTIVE,
     UNIT_PERCENT,
+    UNIT_WATT_HOURS,
 )
 
 CONF_CURRENT_A = "current_a"
