@@ -166,7 +166,7 @@ void ADE7953::update() {
   // prevent DIV/0
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000;
   ESP_LOGD(TAG, "ADE7953::update() diff=%" PRIu32 " pref=%f", diff, pref);
-  float eref = (ADE7953_WATTSEC_PREF * (diff < 10 ? 100 : diff * diff) ) / 1000;
+  float eref = ADE7953_WATTSEC_PREF;
 
   // Active power
   this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
