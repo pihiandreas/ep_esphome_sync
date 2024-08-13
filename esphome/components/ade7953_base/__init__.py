@@ -14,7 +14,9 @@ from esphome.const import (
     DEVICE_CLASS_POWER_FACTOR,
     DEVICE_CLASS_VOLTAGE,
     DEVICE_CLASS_FREQUENCY,
+    DEVICE_CLASS_ENERGY,
     STATE_CLASS_MEASUREMENT,
+    STATE_CLASS_TOTAL_INCREASING,
     UNIT_VOLT,
     UNIT_HERTZ,
     UNIT_AMPERE,
@@ -41,7 +43,10 @@ CONF_CURRENT_GAIN_A = "current_gain_a"
 CONF_CURRENT_GAIN_B = "current_gain_b"
 CONF_ACTIVE_POWER_GAIN_A = "active_power_gain_a"
 CONF_ACTIVE_POWER_GAIN_B = "active_power_gain_b"
-CONF_USE_ACCUMULATED_ENERGY_REGISTERS = "use_accumulated_energy_registers"
+CONF_FORWARD_ACTIVE_ENERGY_A = "forward_active_energy_a"
+CONF_FORWARD_ACTIVE_ENERGY_B = "forward_active_energy_b"
+
+# CONF_USE_ACCUMULATED_ENERGY_REGISTERS = "use_accumulated_energy_registers"
 PGA_GAINS = {
     "1x": 0b000,
     "2x": 0b001,
@@ -129,6 +134,28 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_POWER_FACTOR,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
+        cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_A): cv.maybe_simple_value(
+            unit_of_measurement=UNIT_WATT_HOURS,
+            accuracy_decimals=2,
+            device_class=DEVICE_CLASS_ENERGY,
+            state_class=STATE_CLASS_TOTAL_INCREASING,
+        ),
+        # cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_B): cv.maybe_simple_value(
+        #     unit_of_measurement=UNIT_WATT_HOURS,
+        #     accuracy_decimals=2,
+        #     device_class=DEVICE_CLASS_ENERGY,
+        #     state_class=STATE_CLASS_TOTAL_INCREASING,
+        # ),
+        # cv.Optional(CONF_REVERSE_ACTIVE_ENERGY): cv.maybe_simple_value(
+        #     sensor.sensor_schema(
+        #         unit_of_measurement=UNIT_VOLT_AMPS_REACTIVE_HOURS,
+        #         accuracy_decimals=2,
+        #         device_class=DEVICE_CLASS_ENERGY,
+        #         state_class=STATE_CLASS_TOTAL_INCREASING,
+        #     ),
+        #     key=CONF_NAME,
+        # ),
+
         cv.Optional(
             CONF_VOLTAGE_PGA_GAIN,
             default="1x",
@@ -156,7 +183,7 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_ACTIVE_POWER_GAIN_B, default=0x400000): cv.hex_int_range(
             min=0x100000, max=0x800000
         ),
-        cv.Optional(CONF_USE_ACCUMULATED_ENERGY_REGISTERS, default=False): cv.boolean,
+        # cv.Optional(CONF_USE_ACCUMULATED_ENERGY_REGISTERS, default=False): cv.boolean,
     }
 ).extend(cv.polling_component_schema("60s"))
 
@@ -193,6 +220,8 @@ async def register_ade7953(var, config):
         CONF_ACTIVE_POWER_B,
         CONF_REACTIVE_POWER_A,
         CONF_REACTIVE_POWER_B,
+        CONF_FORWARD_ACTIVE_ENERGY_A,
+        # CONF_FORWARD_ACTIVE_ENERGY_B,
     ]:
         if key not in config:
             continue

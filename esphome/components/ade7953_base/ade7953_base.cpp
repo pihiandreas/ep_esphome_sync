@@ -56,8 +56,10 @@ void ADE7953::dump_config() {
   LOG_SENSOR("  ", "Apparent Power B Sensor", this->apparent_power_b_sensor_);
   LOG_SENSOR("  ", "Active Power A Sensor", this->active_power_a_sensor_);
   LOG_SENSOR("  ", "Active Power B Sensor", this->active_power_b_sensor_);
-  LOG_SENSOR("  ", "Rective Power A Sensor", this->reactive_power_a_sensor_);
+  LOG_SENSOR("  ", "Reactive Power A Sensor", this->reactive_power_a_sensor_);
   LOG_SENSOR("  ", "Reactive Power B Sensor", this->reactive_power_b_sensor_);
+  LOG_SENSOR("  ", "Forward Active Energy A Sensor", this->forward_active_energy_a_sensor_);
+  // LOG_SENSOR("  ", "Forward Active Energy B Sensor", this->forward_active_energy_b_sensor_);
   ESP_LOGCONFIG(TAG, "  USE_ACC_ENERGY_REGS: %d", this->use_acc_energy_regs_);
   ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
   ESP_LOGCONFIG(TAG, "  PGA_IA_8: 0x%X", pga_ia_);
@@ -144,6 +146,11 @@ void ADE7953::update() {
   // Frequency
   err = this->ade_read_16(0x010E, &val_16);
   ADE_PUBLISH(frequency, 223750.0f, 1 + val_16);
+
+  // Forward active energy
+  // err = this->ade_read_16(0x010E, &val_16);
+  ADE_PUBLISH(forward_active_energy_a, 123.0f, 1.0f);
+  // ADE_PUBLISH(forward_active_energy_b, 321.0f, 1.0f);
 }
 
 }  // namespace ade7953_base

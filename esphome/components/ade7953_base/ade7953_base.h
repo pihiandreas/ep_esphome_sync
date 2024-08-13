@@ -76,6 +76,9 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   void set_reactive_power_a_sensor(sensor::Sensor *reactive_power_a) { reactive_power_a_sensor_ = reactive_power_a; }
   void set_reactive_power_b_sensor(sensor::Sensor *reactive_power_b) { reactive_power_b_sensor_ = reactive_power_b; }
 
+  void set_forward_active_energy_a_sensor(sensor::Sensor *forward_active_energy_a) { forward_active_energy_a_sensor_ = forward_active_energy_a; }
+  // void set_forward_active_energy_b_sensor(sensor::Sensor *forward_active_energy_b) { forward_active_energy_b_sensor_ = forward_active_energy_b; }
+
   void setup() override;
 
   void dump_config() override;
@@ -97,6 +100,9 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   sensor::Sensor *reactive_power_b_sensor_{nullptr};
   sensor::Sensor *power_factor_a_sensor_{nullptr};
   sensor::Sensor *power_factor_b_sensor_{nullptr};
+  sensor::Sensor *forward_active_energy_a_sensor_{nullptr};
+  // sensor::Sensor *forward_active_energy_b_sensor_{nullptr};
+  
   uint8_t pga_v_;
   uint8_t pga_ia_;
   uint8_t pga_ib_;
