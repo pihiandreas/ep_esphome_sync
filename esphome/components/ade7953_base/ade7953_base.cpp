@@ -150,8 +150,8 @@ void ADE7953::update() {
   ADE_PUBLISH(apparent_power_b, (int32_t) val, pref);
 
   // Active power
-  this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [](float val) { return val / pref; });
-  this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
   // reg = this->use_acc_energy_regs_ ? 0x031E : 0x0312;
   // err = this->ade_read_32(reg, &val);
   // ADE_PUBLISH(active_power_a, (int32_t) val, pref);
