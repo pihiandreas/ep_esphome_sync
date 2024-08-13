@@ -145,9 +145,9 @@ void ADE7953::update() {
 
   // Current
   err = this->ade_read_32(0x031A, &val);
-  ADE_PUBLISH(current_a, (uint32_t) val, ADE7953_IREF / 10.0f);
+  ADE_PUBLISH(current_a, (uint32_t) val, ADE7953_IREF );
   err = this->ade_read_32(0x031B, &val);
-  ADE_PUBLISH(current_b, (uint32_t) val, ADE7953_IREF / 10.0f);
+  ADE_PUBLISH(current_b, (uint32_t) val, ADE7953_IREF );
 
   // Voltage
   err = this->ade_read_32(0x031C, &val);
