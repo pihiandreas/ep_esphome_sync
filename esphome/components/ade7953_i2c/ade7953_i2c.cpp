@@ -89,6 +89,12 @@ uint32_t AdE7953I2c::read_u32_register16_(uint16_t a_register) {
   return convert_big_endian(in);
 }
 
+int32_t AdE7953I2c::read_s32_register16_(uint16_t a_register) {
+  int32_t in;
+  this->read_register16(a_register, reinterpret_cast<uint8_t *>(&in), sizeof(in));
+  return convert_big_endian(in);
+}
+
 
 // int16_t read_s16_register16_(uint16_t a_register);
 // int32_t read_s24zp_register16_(uint16_t a_register);

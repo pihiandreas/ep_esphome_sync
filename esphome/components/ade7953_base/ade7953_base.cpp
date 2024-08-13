@@ -98,6 +98,16 @@ void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_
   sensor->publish_state(f(val));
 }
 
+template<typename F>
+void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+  if (sensor == nullptr) {
+    return;
+  }
+
+  float val = this->read_s32_register16_(a_register);
+  sensor->publish_state(f(val));
+}
+
 void ADE7953::update() {
   if (!this->is_setup_)
     return;
@@ -140,11 +150,13 @@ void ADE7953::update() {
   ADE_PUBLISH(apparent_power_b, (int32_t) val, pref);
 
   // Active power
-  reg = this->use_acc_energy_regs_ ? 0x031E : 0x0312;
-  err = this->ade_read_32(reg, &val);
-  ADE_PUBLISH(active_power_a, (int32_t) val, pref);
-  err = this->ade_read_32(reg + 1, &val);
-  ADE_PUBLISH(active_power_b, (int32_t) val, pref);
+  this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [](float val) { return val / pref; });
+  // reg = this->use_acc_energy_regs_ ? 0x031E : 0x0312;
+  // err = this->ade_read_32(reg, &val);
+  // ADE_PUBLISH(active_power_a, (int32_t) val, pref);
+  // err = this->ade_read_32(reg + 1, &val);
+  // ADE_PUBLISH(active_power_b, (int32_t) val, pref);
 
   // Reactive power
   reg = this->use_acc_energy_regs_ ? 0x0320 : 0x0314;
@@ -154,14 +166,10 @@ void ADE7953::update() {
   ADE_PUBLISH(reactive_power_b, (int32_t) val, pref);
 
   // Current
-  err = this->ade_read_32(0x031A, &val);
-  ADE_PUBLISH(current_a, (uint32_t) val, ADE7953_IREF );
-  err = this->ade_read_32(0x031B, &val);
-  ADE_PUBLISH(current_b, (uint32_t) val, ADE7953_IREF );
+  this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, [](float val) { return val / ADE7953_IREF; });
+  this->update_sensor_from_u32_register16_(this->current_b_sensor_, 0x031B, [](float val) { return val / ADE7953_IREF; });
 
   // Voltage
-  // err = this->ade_read_32(0x031C, &val);
-  // ADE_PUBLISH(voltage, (uint32_t) val, ADE7953_UREF);
   this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, [](float val) { return val / ADE7953_UREF; });
   
   // Frequency
