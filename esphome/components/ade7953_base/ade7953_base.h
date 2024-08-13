@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace esphome {
-namespace ade7953_base_2 {
+namespace ade7953_base {
 
 static const uint8_t PGA_V_8 =
     0x007;  // PGA_V,  (R/W) Default: 0x00, Unsigned, Voltage channel gain configuration (Bits[2:0])

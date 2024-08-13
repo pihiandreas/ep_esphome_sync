@@ -4,9 +4,9 @@
 #include <cinttypes>
 
 namespace esphome {
-namespace ade7953_base_2 {
+namespace ade7953_base {
 
-static const char *const TAG = "ade7953_2";
+static const char *const TAG = "ade7953";
 
 static const float ADE_POWER_FACTOR = 154.0f;
 static const float ADE_WATTSEC_POWER_FACTOR = ADE_POWER_FACTOR * ADE_POWER_FACTOR / 3600;

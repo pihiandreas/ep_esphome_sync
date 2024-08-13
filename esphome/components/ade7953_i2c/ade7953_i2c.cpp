@@ -3,9 +3,9 @@
 #include "esphome/core/helpers.h"
 
 namespace esphome {
-namespace ade7953_i2c_2 {
+namespace ade7953_i2c {
 
-static const char *const TAG = "ade7953_2";
+static const char *const TAG = "ade7953";
 
 void AdE7953I2c::dump_config() {
   ESP_LOGCONFIG(TAG, "ADE7953_i2c:");
