@@ -26,7 +26,7 @@ class AdE7953I2c : public ade7953_base::ADE7953, public i2c::I2CDevice {
   void write_u8_register16_(uint16_t a_register, uint8_t value);
   void write_u16_register16_(uint16_t a_register, uint16_t value);
   void write_u32_register16_(uint16_t a_register, uint32_t value);
-  // void write_s32_register16_(uint16_t a_register, int32_t value);
+  void write_s32_register16_(uint16_t a_register, int32_t value);
 
 };
 

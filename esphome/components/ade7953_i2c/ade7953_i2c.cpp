@@ -52,10 +52,10 @@ void AdE7953I2c::write_u16_register16_(uint16_t a_register, uint16_t value){
   this->write_register16(a_register, reinterpret_cast<uint8_t *>(&out), sizeof(out));
 }
 
-// void AdE7953I2c::write_s32_register16_(uint16_t a_register, int32_t value) {
-//   int32_t out = convert_big_endian(value);
-//   this->write_register16(a_register, reinterpret_cast<uint8_t *>(&out), sizeof(out));
-// }
+void AdE7953I2c::write_s32_register16_(uint16_t a_register, int32_t value) {
+  int32_t out = convert_big_endian(value);
+  this->write_register16(a_register, reinterpret_cast<uint8_t *>(&out), sizeof(out));
+}
 
 void AdE7953I2c::write_u32_register16_(uint16_t a_register, uint32_t value){
   uint32_t out = convert_big_endian(value);

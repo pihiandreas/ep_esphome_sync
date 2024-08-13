@@ -135,7 +135,7 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   virtual void write_u8_register16_(uint16_t a_register, uint8_t value);
   virtual void write_u16_register16_(uint16_t a_register, uint16_t value);
   virtual void write_u32_register16_(uint16_t a_register, uint32_t value);
-  // void write_s32_register16_(uint16_t a_register, int32_t value);
+  virtual void write_s32_register16_(uint16_t a_register, int32_t value);
 
 };
 
