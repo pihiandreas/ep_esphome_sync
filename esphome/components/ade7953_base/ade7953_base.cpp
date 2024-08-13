@@ -41,7 +41,8 @@ void ADE7953::setup() {
     this->ade_write_32(AWGAIN_32, awgain_);
     this->ade_write_32(BWGAIN_32, bwgain_);
     // Read back gains for debugging
-    this->ade_read_8(PGA_V_8, &pga_v_);
+    // this->ade_read_8(PGA_V_8, &pga_v_);
+    pga_v_ = this->read_u8_register16_(0x32E);
     this->ade_read_8(PGA_IA_8, &pga_ia_);
     this->ade_read_8(PGA_IB_8, &pga_ib_);
     this->ade_read_32(AVGAIN_32, &vgain_);
@@ -142,19 +143,21 @@ void ADE7953::update() {
   if (!this->is_setup_)
     return;
 
-  bool err;
+  // bool err;
 
-  uint32_t interrupts_a = 0;
-  uint32_t interrupts_b = 0;
+  // uint32_t interrupts_a = 0;
+  // uint32_t interrupts_b = 0;
   if (this->irq_pin_ != nullptr) {
     // Read and reset interrupts
-    this->ade_read_32(0x032E, &interrupts_a);
-    this->ade_read_32(0x0331, &interrupts_b);
+    // this->ade_read_32(0x032E, &interrupts_a);
+    // this->ade_read_32(0x0331, &interrupts_b);
+    this->read_u8_register16_(0x32E);
+    this->read_u8_register16_(0x331);
   }
 
-  uint32_t val;
-  uint16_t val_16;
-  uint16_t reg;
+  // uint32_t val;
+  // uint16_t val_16;
+  // uint16_t reg;
 
   // Power factor
   this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
@@ -164,11 +167,10 @@ void ADE7953::update() {
   const auto diff = now - this->last_update_;
   this->last_update_ = now;
   // prevent DIV/0
-  float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000;
-  ESP_LOGD(TAG, "ADE7953::update() diff=%" PRIu32 " pref=%f", diff, pref);
-  float eref = ADE7953_WATTSEC_PREF;
+  float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
+  float eref = ADE7953_WATTSEC_PREF / 3600.0f;
 
-  // Active power & Forward active energy
+  // Active power & Forward active energy (both from 0x031E / 0x031F)
   float aenergya = this->read_s32_register16_(0x031E);
   this->active_power_a_sensor_->publish_state(aenergya / pref);
   this->forward_active_energy_a_total += (aenergya / eref);
@@ -178,18 +180,8 @@ void ADE7953::update() {
   this->forward_active_energy_b_total += (aenergyb / eref);
   this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
 
-
   // this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
   // this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
-  // this->active_power_a_sensor_->state
-  // this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [eref, this](float val) { return this->forward_active_energy_a_total += (val / eref); });
-  // this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [eref, this](float val) { return this->forward_active_energy_b_total += (val / eref); });
-
-  // Forward active energy
-  // err = this->ade_read_32(0x31E, &val);
-  // ADE_PUBLISH(forward_active_energy_a, (int32_t) val, pref);
-  // err = this->ade_read_32(0x31F, &val);
-  // ADE_PUBLISH(forward_active_energy_b, (int32_t) val, pref);
 
   // Reactive power
   this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, [pref](float val) { return val / pref; });
