@@ -132,7 +132,7 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   virtual bool ade_read_32(uint16_t reg, uint32_t *value) = 0;
 
   template<typename F> void update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
-  template<typename F> void update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
+  template<typename F> void update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
