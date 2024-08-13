@@ -166,14 +166,14 @@ void ADE7953::update() {
   // prevent DIV/0
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000;
   ESP_LOGD(TAG, "ADE7953::update() diff=%" PRIu32 " pref=%f", diff, pref);
-  float eref = diff / 3.6e6;
+  float eref = (ADE7953_WATTSEC_PREF * (diff < 10 ? 100 : diff * diff) ) / 1000);
 
   // Active power
   this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
   this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
 
-  this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [pref, eref, this](float val) { return this->forward_active_energy_a_total += (val / pref) * eref; });
-  this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [pref, eref, this](float val) { return this->forward_active_energy_b_total += (val / pref) * eref; });
+  this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [pref, eref, this](float val) { return this->forward_active_energy_a_total += (val / pref); });
+  this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [pref, eref, this](float val) { return this->forward_active_energy_b_total += (val / eref); });
 
   // Forward active energy
   // err = this->ade_read_32(0x31E, &val);
