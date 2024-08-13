@@ -162,7 +162,7 @@ void ADE7953::update() {
   // Voltage
   // err = this->ade_read_32(0x031C, &val);
   // ADE_PUBLISH(voltage, (uint32_t) val, ADE7953_UREF);
-  this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, [](float val) { return val / ADE7953_UREF; })
+  this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, [](float val) { return val / ADE7953_UREF; });
   
   // Frequency
   err = this->ade_read_16(0x010E, &val_16);
