@@ -140,12 +140,12 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_ENERGY,
             state_class=STATE_CLASS_TOTAL_INCREASING,
         ),
-        # cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_B): cv.maybe_simple_value(
-        #     unit_of_measurement=UNIT_WATT_HOURS,
-        #     accuracy_decimals=2,
-        #     device_class=DEVICE_CLASS_ENERGY,
-        #     state_class=STATE_CLASS_TOTAL_INCREASING,
-        # ),
+        cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_B): sensor.sensor_schema(
+            unit_of_measurement=UNIT_WATT_HOURS,
+            accuracy_decimals=2,
+            device_class=DEVICE_CLASS_ENERGY,
+            state_class=STATE_CLASS_TOTAL_INCREASING,
+        ),
         # cv.Optional(CONF_REVERSE_ACTIVE_ENERGY): cv.maybe_simple_value(
         #     sensor.sensor_schema(
         #         unit_of_measurement=UNIT_VOLT_AMPS_REACTIVE_HOURS,
@@ -221,7 +221,7 @@ async def register_ade7953(var, config):
         CONF_REACTIVE_POWER_A,
         CONF_REACTIVE_POWER_B,
         CONF_FORWARD_ACTIVE_ENERGY_A,
-        # CONF_FORWARD_ACTIVE_ENERGY_B,
+        CONF_FORWARD_ACTIVE_ENERGY_B,
     ]:
         if key not in config:
             continue
