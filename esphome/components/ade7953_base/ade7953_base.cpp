@@ -19,7 +19,7 @@ static const char *const TAG = "ade7953";
 static const float ADE7953_PREF = 154.0f;
 static const float ADE7953_UREF = 26000.0f;
 static const float ADE7953_IREF = 100000.0f;
-static const float ADE7953_WATTSEC_PREF = ADE7953_PREF * ADE7953_PREF / 3600.0f 
+static const float ADE7953_WATTSEC_PREF = ADE7953_PREF * ADE7953_PREF / 3600.0f;
 
 void ADE7953::setup() {
   if (this->irq_pin_ != nullptr) {
