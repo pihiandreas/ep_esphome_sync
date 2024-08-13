@@ -172,8 +172,8 @@ void ADE7953::update() {
   this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
   this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
 
-  this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [pref, eref, &this](float val) { return this->forward_active_energy_a_total += (val / pref) * eref; });
-  this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [pref, eref, &this](float val) { return this->forward_active_energy_b_total += (val / pref) * eref; });
+  this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [pref, eref, this](float val) { return this->forward_active_energy_a_total += (val / pref) * eref; });
+  this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [pref, eref, this](float val) { return this->forward_active_energy_b_total += (val / pref) * eref; });
 
   // Forward active energy
   // err = this->ade_read_32(0x31E, &val);

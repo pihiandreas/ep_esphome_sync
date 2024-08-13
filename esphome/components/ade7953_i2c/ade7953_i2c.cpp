@@ -48,7 +48,7 @@ bool AdE7953I2c::ade_read_8(uint16_t reg, uint8_t *value) {
   return (err != i2c::ERROR_OK);
 }
 
-uint8_t ADE7880::read_u8_register16_(uint16_t a_register) {
+uint8_t AdE7953I2c::read_u8_register16_(uint16_t a_register) {
   uint8_t in;
   this->read_register16(a_register, &in, sizeof(in));
   return in;
