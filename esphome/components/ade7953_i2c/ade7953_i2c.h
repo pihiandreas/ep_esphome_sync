@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace esphome {
-namespace ade7953_i2c {
+namespace ade7953_i2c_2 {
 
 class AdE7953I2c : public ade7953_base::ADE7953, public i2c::I2CDevice {
  public:
