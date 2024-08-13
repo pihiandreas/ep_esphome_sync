@@ -44,8 +44,8 @@ void ADE7953::setup() {
     this->write_u32_register16_(BWGAIN_32, bwgain_);
 
     // IRMSOS 
-    this->write_s32_register16_(0x0386, 0xF7D6); // AIRMSOS
-    this->write_s32_register16_(0x0392, 0xF7D6); // BIRMSOS
+    // this->write_s32_register16_(0x0386, 0xF7D6); // AIRMSOS
+    // this->write_s32_register16_(0x0392, 0xF7D6); // BIRMSOS
 
     // Read back gains for debugging
     pga_v_ = this->read_u8_register16_(PGA_V_8);
