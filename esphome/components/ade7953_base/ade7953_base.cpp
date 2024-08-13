@@ -89,12 +89,12 @@ void ADE7953::dump_config() {
 #define ADE_PUBLISH(name, val, factor) ADE_PUBLISH_(name, val, factor)
 
 template<typename F>
-void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
   if (sensor == nullptr) {
     return;
   }
 
-  float val = this->read_s32_register16_(a_register);
+  float val = this->read_u32_register16_(a_register);
   sensor->publish_state(f(val));
 }
 
@@ -162,7 +162,7 @@ void ADE7953::update() {
   // Voltage
   // err = this->ade_read_32(0x031C, &val);
   // ADE_PUBLISH(voltage, (uint32_t) val, ADE7953_UREF);
-  this->update_sensor_from_s32_register16_(this->voltage_sensor_, 0x031C, [](float val) { return val / ADE7953_UREF; })
+  this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, [](float val) { return val / ADE7953_UREF; })
   
   // Frequency
   err = this->ade_read_16(0x010E, &val_16);
