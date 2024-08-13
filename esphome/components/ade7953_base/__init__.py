@@ -135,7 +135,7 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_POWER_FACTOR,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
-        cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_A): cv.maybe_simple_value(
+        cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_A): sensor.sensor_schema(
             unit_of_measurement=UNIT_WATT_HOURS,
             accuracy_decimals=2,
             device_class=DEVICE_CLASS_ENERGY,
