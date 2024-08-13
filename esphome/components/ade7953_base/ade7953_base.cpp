@@ -157,7 +157,7 @@ void ADE7953::update() {
   this->last_update_ = now;
   // prevent DIV/0
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
-  float eref = ADE7953_WATTSEC_PREF / 3600.0f;
+  float eref = ADE7953_WATTSEC_PREF * 3600.0f;
 
   // Active power & Forward active energy (both from 0x031E / 0x031F)
   float aenergya = this->read_s32_register16_(0x031E);
