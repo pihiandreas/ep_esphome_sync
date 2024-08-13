@@ -118,6 +118,26 @@ void ADE7953::update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_
   sensor->publish_state(f(val));
 }
 
+template<typename F>
+void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+  if (sensor == nullptr) {
+    return;
+  }
+
+  float val = this->read_u16_register16_(a_register);
+  sensor->publish_state(f(val));
+}
+
+template<typename F>
+void ADE7953::update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+  if (sensor == nullptr) {
+    return;
+  }
+
+  float val = this->read_u8_register16_(a_register);
+  sensor->publish_state(f(val));
+}
+
 void ADE7953::update() {
   if (!this->is_setup_)
     return;
@@ -139,10 +159,6 @@ void ADE7953::update() {
   // Power factor
   this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
   this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
-  // err = this->ade_read_16(0x010A, &val_16);
-  // ADE_PUBLISH(power_factor_a, (int16_t) val_16, (0x7FFF / 100.0f));
-  // err = this->ade_read_16(0x010B, &val_16);
-  // ADE_PUBLISH(power_factor_b, (int16_t) val_16, (0x7FFF / 100.0f));
 
   const uint32_t now = millis();
   const auto diff = now - this->last_update_;
@@ -150,21 +166,28 @@ void ADE7953::update() {
   // prevent DIV/0
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000;
   ESP_LOGD(TAG, "ADE7953::update() diff=%" PRIu32 " pref=%f", diff, pref);
-
-  // Apparent power
-  this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, [pref](float val) { return val / pref; });
-  this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, [pref](float val) { return val / pref; });
+  float eref = diff / 3.6e6
 
   // Active power
   this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
   this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
 
+  this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [pref, eref, &this](float val) { return this->forward_active_energy_a_total += (val / pref) * eref; });
+  this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [pref, eref, &this](float val) { return this->forward_active_energy_b_total += (val / pref) * eref; });
+
+  // Forward active energy
+  // err = this->ade_read_32(0x31E, &val);
+  // ADE_PUBLISH(forward_active_energy_a, (int32_t) val, pref);
+  // err = this->ade_read_32(0x31F, &val);
+  // ADE_PUBLISH(forward_active_energy_b, (int32_t) val, pref);
+
   // Reactive power
-  reg = this->use_acc_energy_regs_ ? 0x0320 : 0x0314;
-  err = this->ade_read_32(reg, &val);
-  ADE_PUBLISH(reactive_power_a, (int32_t) val, pref);
-  err = this->ade_read_32(reg + 1, &val);
-  ADE_PUBLISH(reactive_power_b, (int32_t) val, pref);
+  this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->reactive_power_b_sensor_, 0x0321, [pref](float val) { return val / pref; });
+
+  // Apparent power
+  this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, [pref](float val) { return val / pref; });
 
   // Current
   this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, [](float val) { return val / ADE7953_IREF; });
@@ -174,14 +197,10 @@ void ADE7953::update() {
   this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, [](float val) { return val / ADE7953_UREF; });
   
   // Frequency
-  err = this->ade_read_16(0x010E, &val_16);
-  ADE_PUBLISH(frequency, 223750.0f, 1 + val_16);
+  this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
+  // err = this->ade_read_16(0x010E, &val_16);
+  // ADE_PUBLISH(frequency, 223750.0f, 1 + val_16);
 
-  // Forward active energy
-  err = this->ade_read_32(0x31E, &val);
-  ADE_PUBLISH(forward_active_energy_a, (int32_t) val, pref);
-  err = this->ade_read_32(0x31F, &val);
-  ADE_PUBLISH(forward_active_energy_b, (int32_t) val, pref);
 }
 
 }  // namespace ade7953_base

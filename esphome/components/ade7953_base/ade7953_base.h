@@ -116,6 +116,9 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   bool use_acc_energy_regs_{false};
   uint32_t last_update_;
 
+  float forward_active_energy_a_total{0};
+  float forward_active_energy_b_total{0};
+
   virtual bool ade_write_8(uint16_t reg, uint8_t value) = 0;
 
   virtual bool ade_write_16(uint16_t reg, uint16_t value) = 0;
@@ -128,13 +131,15 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
 
   virtual bool ade_read_32(uint16_t reg, uint32_t *value) = 0;
 
+  template<typename F> void update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
+  template<typename F> void update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
 
-  // virtual uint8_t read_u8_register16_(uint16_t a_register);
+  virtual uint8_t read_u8_register16_(uint16_t a_register);
   virtual int16_t read_s16_register16_(uint16_t a_register);
-  // virtual uint16_t read_u16_register16_(uint16_t a_register);
+  virtual uint16_t read_u16_register16_(uint16_t a_register);
   // int32_t read_s24zp_register16_(uint16_t a_register);
   virtual int32_t read_s32_register16_(uint16_t a_register);
   virtual uint32_t read_u32_register16_(uint16_t a_register);

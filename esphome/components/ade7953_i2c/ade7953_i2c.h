@@ -23,9 +23,9 @@ class AdE7953I2c : public ade7953_base::ADE7953, public i2c::I2CDevice {
   bool ade_read_16(uint16_t reg, uint16_t *value) override;
   bool ade_read_32(uint16_t reg, uint32_t *value) override;
 
-  // uint8_t read_u8_register16_(uint16_t a_register);
+  uint8_t read_u8_register16_(uint16_t a_register);
   int16_t read_s16_register16_(uint16_t a_register);
-  // uint16_t read_u16_register16_(uint16_t a_register);
+  uint16_t read_u16_register16_(uint16_t a_register);
   // int32_t read_s24zp_register16_(uint16_t a_register);
   int32_t read_s32_register16_(uint16_t a_register);
   uint32_t read_u32_register16_(uint16_t a_register);
