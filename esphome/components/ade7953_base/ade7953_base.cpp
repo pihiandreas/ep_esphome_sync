@@ -149,9 +149,9 @@ void ADE7953::update() {
 
   // Forward active energy
   err = this->ade_read_32(0x31E, &val);
-  ADE_PUBLISH(forward_active_energy_a, (int32_t) val, 1.0f);
+  ADE_PUBLISH(forward_active_energy_a, (int32_t) val, pf);
   err = this->ade_read_32(0x31F, &val);
-  ADE_PUBLISH(forward_active_energy_b, (int32_t) val, 1.0f);
+  ADE_PUBLISH(forward_active_energy_b, (int32_t) val, pf);
 }
 
 }  // namespace ade7953_base
