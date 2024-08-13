@@ -168,12 +168,22 @@ void ADE7953::update() {
   ESP_LOGD(TAG, "ADE7953::update() diff=%" PRIu32 " pref=%f", diff, pref);
   float eref = ADE7953_WATTSEC_PREF;
 
-  // Active power
-  this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
-  this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
+  // Active power & Forward active energy
+  float aenergya = this->read_s32_register16_(0x031E);
+  this->active_power_a_sensor_->publish_state(aenergya / pref);
+  this->forward_active_energy_a_total += (aenergya / eref);
+  this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
+  float aenergyb = this->read_s32_register16_(0x031F);
+  this->active_power_b_sensor_->publish_state(aenergyb / pref);
+  this->forward_active_energy_b_total += (aenergyb / eref);
+  this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
 
-  this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [eref, this](float val) { return this->forward_active_energy_a_total += (val / eref); });
-  this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [eref, this](float val) { return this->forward_active_energy_b_total += (val / eref); });
+
+  // this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
+  // this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
+  // this->active_power_a_sensor_->state
+  // this->update_sensor_from_s32_register16_(this->forward_active_energy_a_sensor_, 0x031E, [eref, this](float val) { return this->forward_active_energy_a_total += (val / eref); });
+  // this->update_sensor_from_s32_register16_(this->forward_active_energy_b_sensor_, 0x031F, [eref, this](float val) { return this->forward_active_energy_b_total += (val / eref); });
 
   // Forward active energy
   // err = this->ade_read_32(0x31E, &val);
