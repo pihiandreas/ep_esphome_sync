@@ -137,8 +137,8 @@ void ADE7953::update() {
   uint16_t reg;
 
   // Power factor
-  this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [pref](float val) { return val / (0x7FFF / 100.0f); });
-  this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [pref](float val) { return val / (0x7FFF / 100.0f); });
+  this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
+  this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
   // err = this->ade_read_16(0x010A, &val_16);
   // ADE_PUBLISH(power_factor_a, (int16_t) val_16, (0x7FFF / 100.0f));
   // err = this->ade_read_16(0x010B, &val_16);
