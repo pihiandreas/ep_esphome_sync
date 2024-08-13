@@ -60,7 +60,7 @@ void ADE7953::dump_config() {
   LOG_SENSOR("  ", "Reactive Power B Sensor", this->reactive_power_b_sensor_);
   LOG_SENSOR("  ", "Forward Active Energy A Sensor", this->forward_active_energy_a_sensor_);
   // LOG_SENSOR("  ", "Forward Active Energy B Sensor", this->forward_active_energy_b_sensor_);
-  // ESP_LOGCONFIG(TAG, "  USE_ACC_ENERGY_REGS: %d", this->use_acc_energy_regs_);
+  ESP_LOGCONFIG(TAG, "  USE_ACC_ENERGY_REGS: %d", this->use_acc_energy_regs_);
   ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
   ESP_LOGCONFIG(TAG, "  PGA_IA_8: 0x%X", pga_ia_);
   ESP_LOGCONFIG(TAG, "  PGA_IB_8: 0x%X", pga_ib_);
