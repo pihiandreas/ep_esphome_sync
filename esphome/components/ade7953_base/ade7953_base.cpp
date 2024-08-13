@@ -28,18 +28,25 @@ void ADE7953::setup() {
 
   // The chip might take up to 100ms to initialise
   this->set_timeout(100, [this]() {
-    // this->ade_write_8(0x0010, 0x04);
-    this->ade_write_8(0x00FE, 0xAD);
-    this->ade_write_16(0x0120, 0x0030);
+    // this->write_u8_register16_(0x0010, 0x04);
+    this->write_u8_register16_(0x00FE, 0xAD);    // Unlock
+    this->write_u16_register16_(0x0120, 0x0030); // see: ADE7953 Data Sheet Rev. C | Page 18 of 72 | ADE7953 POWER-UP PROCEDURE
+
+    
     // Set gains
-    this->ade_write_8(PGA_V_8, pga_v_);
-    this->ade_write_8(PGA_IA_8, pga_ia_);
-    this->ade_write_8(PGA_IB_8, pga_ib_);
-    this->ade_write_32(AVGAIN_32, vgain_);
-    this->ade_write_32(AIGAIN_32, aigain_);
-    this->ade_write_32(BIGAIN_32, bigain_);
-    this->ade_write_32(AWGAIN_32, awgain_);
-    this->ade_write_32(BWGAIN_32, bwgain_);
+    this->write_u8_register16_(PGA_V_8, pga_v_);
+    this->write_u8_register16_(PGA_IA_8, pga_ia_);
+    this->write_u8_register16_(PGA_IB_8, pga_ib_);
+    this->write_u32_register16_(AVGAIN_32, vgain_);
+    this->write_u32_register16_(AIGAIN_32, aigain_);
+    this->write_u32_register16_(BIGAIN_32, bigain_);
+    this->write_u32_register16_(AWGAIN_32, awgain_);
+    this->write_u32_register16_(BWGAIN_32, bwgain_);
+
+    // IRMSOS 
+    this->write_u32_register16_(0x0386, 0xF7D6); // AIRMSOS
+    this->write_u32_register16_(0x0392, 0xF7D6); // BIRMSOS
+
     // Read back gains for debugging
     pga_v_ = this->read_u8_register16_(PGA_V_8);
     pga_ia_ = this->read_u8_register16_(PGA_IA_8);
@@ -49,14 +56,6 @@ void ADE7953::setup() {
     bigain_ = this->read_u32_register16_(BIGAIN_32);
     awgain_ = this->read_u32_register16_(AWGAIN_32);
     bwgain_ = this->read_u32_register16_(BWGAIN_32);
-    // this->ade_read_8(PGA_V_8, &pga_v_);
-    // this->ade_read_8(PGA_IA_8, &pga_ia_);
-    // this->ade_read_8(PGA_IB_8, &pga_ib_);
-    // this->ade_read_32(AVGAIN_32, &vgain_);
-    // this->ade_read_32(AIGAIN_32, &aigain_);
-    // this->ade_read_32(BIGAIN_32, &bigain_);
-    // this->ade_read_32(AWGAIN_32, &awgain_);
-    // this->ade_read_32(BWGAIN_32, &bwgain_);
     this->last_update_ = millis();
     this->is_setup_ = true;
   });
@@ -88,13 +87,6 @@ void ADE7953::dump_config() {
   ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
   ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
 }
-
-#define ADE_PUBLISH_(name, val, factor) \
-  if (err == 0 && this->name##_sensor_) { \
-    float value = (val) / (factor); \
-    this->name##_sensor_->publish_state(value); \
-  }
-#define ADE_PUBLISH(name, val, factor) ADE_PUBLISH_(name, val, factor)
 
 template<typename F>
 void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
@@ -150,21 +142,11 @@ void ADE7953::update() {
   if (!this->is_setup_)
     return;
 
-  // bool err;
-
-  // uint32_t interrupts_a = 0;
-  // uint32_t interrupts_b = 0;
   if (this->irq_pin_ != nullptr) {
     // Read and reset interrupts
-    // this->ade_read_32(0x032E, &interrupts_a);
-    // this->ade_read_32(0x0331, &interrupts_b);
     this->read_u8_register16_(0x32E);
     this->read_u8_register16_(0x331);
   }
-
-  // uint32_t val;
-  // uint16_t val_16;
-  // uint16_t reg;
 
   // Power factor
   this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
@@ -182,13 +164,11 @@ void ADE7953::update() {
   this->active_power_a_sensor_->publish_state(aenergya / pref);
   this->forward_active_energy_a_total += (aenergya / eref);
   this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
+
   float aenergyb = this->read_s32_register16_(0x031F);
   this->active_power_b_sensor_->publish_state(aenergyb / pref);
   this->forward_active_energy_b_total += (aenergyb / eref);
   this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
-
-  // this->update_sensor_from_s32_register16_(this->active_power_a_sensor_, 0x031E, [pref](float val) { return val / pref; });
-  // this->update_sensor_from_s32_register16_(this->active_power_b_sensor_, 0x031F, [pref](float val) { return val / pref; });
 
   // Reactive power
   this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, [pref](float val) { return val / pref; });
@@ -207,8 +187,6 @@ void ADE7953::update() {
   
   // Frequency
   this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
-  // err = this->ade_read_16(0x010E, &val_16);
-  // ADE_PUBLISH(frequency, 223750.0f, 1 + val_16);
 
 }
 
