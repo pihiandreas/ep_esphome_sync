@@ -18,21 +18,23 @@ static const uint8_t PGA_IB_8 =
 
 static const uint32_t AIGAIN_32 =
     0x380;  // AIGAIN, (R/W)   Default: 0x400000, Unsigned,Current channel gain (Current Channel A)(32 bit)
-static const uint32_t AVGAIN_32 = 0x381;  // AVGAIN, (R/W)   Default: 0x400000, Unsigned,Voltage channel gain(32 bit)
+static const uint32_t AVGAIN_32 = 
+    0x381;  // AVGAIN, (R/W)   Default: 0x400000, Unsigned,Voltage channel gain(32 bit)
 static const uint32_t AWGAIN_32 =
     0x382;  // AWGAIN, (R/W)   Default: 0x400000, Unsigned,Active power gain (Current Channel A)(32 bit)
 static const uint32_t AVARGAIN_32 =
-    0x383;  // AVARGAIN, (R/W) Default: 0x400000, Unsigned, Reactive power gain (Current Channel A)(32 bit)
+    0x383;  // AVARGAIN, (R/W) Default: 0x400000, Unsigned,Reactive power gain (Current Channel A)(32 bit)
 static const uint32_t AVAGAIN_32 =
     0x384;  // AVAGAIN, (R/W)  Default: 0x400000, Unsigned,Apparent power gain (Current Channel A)(32 bit)
 
 static const uint32_t BIGAIN_32 =
     0x38C;  // BIGAIN, (R/W)   Default: 0x400000, Unsigned,Current channel gain (Current Channel B)(32 bit)
-static const uint32_t BVGAIN_32 = 0x38D;  // BVGAIN, (R/W)   Default: 0x400000, Unsigned,Voltage channel gain(32 bit)
+static const uint32_t BVGAIN_32 =
+    0x38D;  // BVGAIN, (R/W)   Default: 0x400000, Unsigned,Voltage channel gain(32 bit)
 static const uint32_t BWGAIN_32 =
     0x38E;  // BWGAIN, (R/W)   Default: 0x400000, Unsigned,Active power gain (Current Channel B)(32 bit)
 static const uint32_t BVARGAIN_32 =
-    0x38F;  // BVARGAIN, (R/W) Default: 0x400000, Unsigned, Reactive power gain (Current Channel B)(32 bit)
+    0x38F;  // BVARGAIN, (R/W) Default: 0x400000, Unsigned,Reactive power gain (Current Channel B)(32 bit)
 static const uint32_t BVAGAIN_32 =
     0x390;  // BVAGAIN, (R/W)  Default: 0x400000, Unsigned,Apparent power gain (Current Channel B)(32 bit)
 

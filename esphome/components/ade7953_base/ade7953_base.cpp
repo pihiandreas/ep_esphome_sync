@@ -8,8 +8,18 @@ namespace ade7953_base {
 
 static const char *const TAG = "ade7953";
 
-static const float ADE_POWER_FACTOR = 154.0f;
-static const float ADE_WATTSEC_POWER_FACTOR = ADE_POWER_FACTOR * ADE_POWER_FACTOR / 3600;
+// static const float ADE_POWER_FACTOR = 154.0f;
+// static const float ADE_WATTSEC_POWER_FACTOR = ADE_POWER_FACTOR * ADE_POWER_FACTOR / 3600;
+
+// from https://github.com/arendst/Tasmota/blob/development/tasmota/tasmota_xnrg_energy/xnrg_07_ade7953.ino
+// #define ADE7953_PREF              1540       // 4194304 / (1540 / 1000) = 2723574 (= WGAIN, VAGAIN and VARGAIN)
+// #define ADE7953_UREF              26000      // 4194304 / (26000 / 10000) = 1613194 (= VGAIN)
+// #define ADE7953_IREF              10000      // 4194304 / (10000 / 10000) = 4194303 (= IGAIN, needs to be different than 4194304 in order to use calib.dat)
+
+static const float ADE7953_PREF = 154.0f;
+static const float ADE7953_UREF = 26000.0f;
+static const float ADE7953_IREF = 100000.0f;
+static const float ADE7953_WATTSEC_PREF = ADE7953_PREF * ADE7953_PREF / 3600.0f 
 
 void ADE7953::setup() {
   if (this->irq_pin_ != nullptr) {
@@ -102,46 +112,46 @@ void ADE7953::update() {
   err = this->ade_read_16(0x010B, &val_16);
   ADE_PUBLISH(power_factor_b, (int16_t) val_16, (0x7FFF / 100.0f));
 
-  float pf = ADE_POWER_FACTOR;
+  float pref = ADE7953_PREF;
   if (this->use_acc_energy_regs_) {
     const uint32_t now = millis();
     const auto diff = now - this->last_update_;
     this->last_update_ = now;
     // prevent DIV/0
-    pf = ADE_WATTSEC_POWER_FACTOR * (diff < 10 ? 10 : diff) / 1000;
-    ESP_LOGVV(TAG, "ADE7953::update() diff=%" PRIu32 " pf=%f", diff, pf);
+    pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000;
+    ESP_LOGD(TAG, "ADE7953::update() diff=%" PRIu32 " pref=%f", diff, pref);
   }
 
   // Apparent power
   reg = this->use_acc_energy_regs_ ? 0x0322 : 0x0310;
   err = this->ade_read_32(reg, &val);
-  ADE_PUBLISH(apparent_power_a, (int32_t) val, pf);
+  ADE_PUBLISH(apparent_power_a, (int32_t) val, pref);
   err = this->ade_read_32(reg + 1, &val);
-  ADE_PUBLISH(apparent_power_b, (int32_t) val, pf);
+  ADE_PUBLISH(apparent_power_b, (int32_t) val, pref);
 
   // Active power
   reg = this->use_acc_energy_regs_ ? 0x031E : 0x0312;
   err = this->ade_read_32(reg, &val);
-  ADE_PUBLISH(active_power_a, (int32_t) val, pf);
+  ADE_PUBLISH(active_power_a, (int32_t) val, pref);
   err = this->ade_read_32(reg + 1, &val);
-  ADE_PUBLISH(active_power_b, (int32_t) val, pf);
+  ADE_PUBLISH(active_power_b, (int32_t) val, pref);
 
   // Reactive power
   reg = this->use_acc_energy_regs_ ? 0x0320 : 0x0314;
   err = this->ade_read_32(reg, &val);
-  ADE_PUBLISH(reactive_power_a, (int32_t) val, pf);
+  ADE_PUBLISH(reactive_power_a, (int32_t) val, pref);
   err = this->ade_read_32(reg + 1, &val);
-  ADE_PUBLISH(reactive_power_b, (int32_t) val, pf);
+  ADE_PUBLISH(reactive_power_b, (int32_t) val, pref);
 
   // Current
   err = this->ade_read_32(0x031A, &val);
-  ADE_PUBLISH(current_a, (uint32_t) val, 100000.0f);
+  ADE_PUBLISH(current_a, (uint32_t) val, ADE7953_IREF / 10.0f);
   err = this->ade_read_32(0x031B, &val);
-  ADE_PUBLISH(current_b, (uint32_t) val, 100000.0f);
+  ADE_PUBLISH(current_b, (uint32_t) val, ADE7953_IREF / 10.0f);
 
   // Voltage
   err = this->ade_read_32(0x031C, &val);
-  ADE_PUBLISH(voltage, (uint32_t) val, 26000.0f);
+  ADE_PUBLISH(voltage, (uint32_t) val, ADE7953_UREF);
 
   // Frequency
   err = this->ade_read_16(0x010E, &val_16);
@@ -149,9 +159,9 @@ void ADE7953::update() {
 
   // Forward active energy
   err = this->ade_read_32(0x31E, &val);
-  ADE_PUBLISH(forward_active_energy_a, (int32_t) val, pf);
+  ADE_PUBLISH(forward_active_energy_a, (int32_t) val, pref);
   err = this->ade_read_32(0x31F, &val);
-  ADE_PUBLISH(forward_active_energy_b, (int32_t) val, pf);
+  ADE_PUBLISH(forward_active_energy_b, (int32_t) val, pref);
 }
 
 }  // namespace ade7953_base
