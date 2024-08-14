@@ -24,7 +24,7 @@ static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
 // Getting negative value on Shelly2PM+_v0.1.9 2022-6-2:
 // [VV][i2c.idf:197]: 0x38 TX 031E
 // [VV][i2c.idf:173]: 0x38 RX FFFFEF4F
-// [D][ade7953:169]: diff = 2011 
+// [D][ade7953:169]: diff = 2011 ms
 // [D][ade7953:170]: pref = 13.248020
 // [D][ade7953:171]: aenergya[0x031E] =  -4273.0000 (2.011sec)
 // [D][ade7953:172]: pow a =  -322.5388 W

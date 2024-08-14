@@ -48,7 +48,6 @@ CONF_FORWARD_ACTIVE_ENERGY_A = "forward_active_energy_a"
 CONF_FORWARD_ACTIVE_ENERGY_B = "forward_active_energy_b"
 CONF_ACTIVE_POWER_INVERTED_A = "active_power_inverted_a"
 CONF_ACTIVE_POWER_INVERTED_B = "active_power_inverted_b"
-# CONF_USE_ACCUMULATED_ENERGY_REGISTERS = "use_accumulated_energy_registers"
 PGA_GAINS = {
     "1x": 0b000,
     "2x": 0b001,
