@@ -157,15 +157,17 @@ void ADE7953::update() {
   this->last_update_ = now;
   // prevent DIV/0
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
-  float eref = ADE7953_WATTSEC_PREF * 3600.0f;
+  float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
 
   // Active power & Forward active energy (both from 0x031E / 0x031F)
   float aenergya = this->read_s32_register16_(0x031E);
+  ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
   this->active_power_a_sensor_->publish_state(aenergya / pref);
   this->forward_active_energy_a_total += (aenergya / eref);
   this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
 
   float aenergyb = this->read_s32_register16_(0x031F);
+  ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
   this->active_power_b_sensor_->publish_state(aenergyb / pref);
   this->forward_active_energy_b_total += (aenergyb / eref);
   this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
