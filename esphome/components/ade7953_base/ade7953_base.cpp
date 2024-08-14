@@ -57,8 +57,8 @@ void ADE7953::setup() {
     // 1. PFMODE (bit 3) = 1 in CONFIG (0x102)
     // 0b 10000000 00000100 = 0x8004 = default
     // 0b 10000000 00001100 = 0x800C = default + bit3 
-    // this->write_u16_register16_(0x0102, 0x800C);
-    this->write_u16_register16_(0x0102, 0x8004);
+    this->write_u16_register16_(0x0102, 0x800C);
+    //this->write_u16_register16_(0x0102, 0x8004);
     // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
     // 0b01000000 = 0x40 = default
     // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
@@ -104,6 +104,7 @@ void ADE7953::setup() {
     lcycmode_ = this->read_u8_register16_(0x0004);
     accmode_ = this->read_u32_register16_(0x0301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
     // initial log after boot
+    //                           00000000001011010001010000000000
     // ACCMODE_32: 0x002D1000 => 00000000001011010001000000000000
     // ACCMODE_32: 0x002D3800 => 00000000001011010011100000000000
     //                           10987654321098765432109876543210
@@ -183,10 +184,10 @@ void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_
   }
 
   float val = f(this->read_s32_register16_(a_register));
-  if (abs(f(val)) < absmin) { 
+  if (abs(val) < absmin) { 
     val = 0.0f;
   }
-  sensor->publish_state(f(val));
+  sensor->publish_state(val);
 }
 
 template<typename F>
