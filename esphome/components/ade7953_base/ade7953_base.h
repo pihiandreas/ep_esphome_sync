@@ -113,7 +113,9 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   uint32_t bigain_;
   uint32_t awgain_;
   uint32_t bwgain_;
-  bool use_acc_energy_regs_{false};
+  uint32_t accmode_;
+
+  // bool use_acc_energy_regs_{false};
   uint32_t last_update_;
 
   float forward_active_energy_a_total{0};

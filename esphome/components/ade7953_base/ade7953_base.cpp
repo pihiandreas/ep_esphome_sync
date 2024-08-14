@@ -84,6 +84,8 @@ void ADE7953::setup() {
     bigain_ = this->read_u32_register16_(BIGAIN_32);
     awgain_ = this->read_u32_register16_(AWGAIN_32);
     bwgain_ = this->read_u32_register16_(BWGAIN_32);
+
+    accmode_ = this->read_u32_register16_(0x301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
     this->last_update_ = millis();
     this->is_setup_ = true;
   });
