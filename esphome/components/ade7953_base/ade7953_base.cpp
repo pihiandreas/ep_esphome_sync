@@ -18,13 +18,30 @@ static const float ADE7953_UREF = 26000.0f;
 static const float ADE7953_IREF = 100000.0f;
 static const float ADE7953_WATTSEC_PREF = ADE7953_PREF * ADE7953_PREF / 3600.0f; //  = 6,58777778
 static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
-static const float ADE7953_LSB_PER_WATTSECOND = 2.5;
-static const float ADE7953_POWER_CORRECTION = 23.41494;  // See https://github.com/arendst/Tasmota/pull/16941
 
 // Esphome 'active power' calculation from 'active energy' 0x31E/0x31F:
 // POW(Watt) = READVALUE (int32_t -> float) / (ADE7953_WATTSEC_PREF * time_diff_seconds) => 322W = 4240 / (6,58777778 * 2) =  
+// Getting negative value on Shelly2PM+_v0.1.9 2022-6-2:
+// [VV][i2c.idf:197]: 0x38 TX 031E
+// [VV][i2c.idf:173]: 0x38 RX FFFFEF4F
+// [D][ade7953:169]: diff = 2011 
+// [D][ade7953:170]: pref = 13.248020
+// [D][ade7953:171]: aenergya[0x031E] =  -4273.0000 (2.011sec)
+// [D][ade7953:172]: pow a =  -322.5388 W
+
 // Tasmota 'active power' calculation:
-// 
+// const float ADE7953_LSB_PER_WATTSECOND = 2.5;
+// const float ADE7953_POWER_CORRECTION = 23.41494;  // See https://github.com/arendst/Tasmota/pull/16941
+// uint32_t active_power[ADE7953_MAX_CHANNEL] = { 0, 0 };
+// int32_t Ade7953Read(uint16_t reg) {
+// .. response = response << 8 | Wire.read();    // receive DATA (MSB first) ..
+// return response; }
+// EnergySetCalibration(ENERGY_POWER_CALIBRATION, ADE7953_PREF, i); => 1540
+// float power_calibration = (float)EnergyGetCalibration(ENERGY_POWER_CALIBRATION, channel) / 10; => 154.0f
+// power_calibration /= ADE7953_POWER_CORRECTION; => 154.0 / 23.41494 = 6.57699742
+// divider = (Ade7953.calib_data[channel][ADE7953_CAL_WGAIN] != ADE7953_GAIN_DEFAULT) ? ADE7953_LSB_PER_WATTSECOND : power_calibration; => power_calibration
+// Energy->active_power[channel] = (float)Ade7953.active_power[channel] / divider;
+// e.g. FFFFEF4F => (-4273 / 2.011) / 6.57699742 = 323.0674 W
 
 void ADE7953::setup() {
   if (this->irq_pin_ != nullptr) {
@@ -37,7 +54,13 @@ void ADE7953::setup() {
     this->write_u8_register16_(0x00FE, 0xAD);    // Unlock
     this->write_u16_register16_(0x0120, 0x0030); // see: ADE7953 Data Sheet Rev. C | Page 18 of 72 | ADE7953 POWER-UP PROCEDURE
 
-    
+    // Setup no load detection and thresholds
+    this->write_u32_register16_(0x001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
+    this->write_u32_register16_(0x303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set no load treshold for active power, default: 0x00E419
+    this->write_u32_register16_(0x304, ADE7953_NO_LOAD_THRESHOLD);  // VAR_NOLOAD, Set no load treshold for reactive power, default: 0x00E419
+    this->write_u32_register16_(0x305, 0x0);                        // VA_NOLOAD, Set no load treshold for apparent power, default: 0x000000
+    this->write_u32_register16_(0x001, 0x0);                        // ADE7953_DISNOLOAD off, Enable no load detection
+
     // Set gains
     this->write_u8_register16_(PGA_V_8, pga_v_);
     this->write_u8_register16_(PGA_IA_8, pga_ia_);
