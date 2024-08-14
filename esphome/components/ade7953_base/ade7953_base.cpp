@@ -164,23 +164,25 @@ void ADE7953::dump_config() {
 }
 
 template<typename F>
-void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, float absmin, F &&f) {
   if (sensor == nullptr) {
     return;
   }
 
-  float val = this->read_u32_register16_(a_register);
-  sensor->publish_state(f(val));
+  float val = f(this->read_u32_register16_(a_register));
+  if abs(val) < absmin val = 0.0f;
+  sensor->publish_state(val);
 }
 
 template<typename F>
-void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, float absmin,  F &&f) {
   if (sensor == nullptr) {
     return;
   }
 
-  float val = this->read_s32_register16_(a_register);
-  sensor->publish_state(f(val));
+  float val = f(this->read_s32_register16_(a_register));
+  if abs(val) < absmin val = 0.0f;
+  sensor->publish_state(val);
 }
 
 template<typename F>
@@ -252,19 +254,19 @@ void ADE7953::update() {
   this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
 
   // Reactive power
-  this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, [pref](float val) { return val / pref; });
-  this->update_sensor_from_s32_register16_(this->reactive_power_b_sensor_, 0x0321, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, 0.0f, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->reactive_power_b_sensor_, 0x0321, 0.0f, [pref](float val) { return val / pref; });
 
   // Apparent power
-  this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, [pref](float val) { return val / pref; });
-  this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, 0.0f, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, 0.0f, [pref](float val) { return val / pref; });
 
   // Current
-  this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, [](float val) { return val / ADE7953_IREF; });
-  this->update_sensor_from_u32_register16_(this->current_b_sensor_, 0x031B, [](float val) { return val / ADE7953_IREF; });
+  this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, 0.05f, [](float val) { return val / ADE7953_IREF; });
+  this->update_sensor_from_u32_register16_(this->current_b_sensor_, 0x031B, 0.05f, [](float val) { return val / ADE7953_IREF; });
 
   // Voltage
-  this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, [](float val) { return val / ADE7953_UREF; });
+  this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, 0.0f, [](float val) { return val / ADE7953_UREF; });
   
   // Frequency
   this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
