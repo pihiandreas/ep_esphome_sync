@@ -166,9 +166,8 @@ void ADE7953::update() {
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
   
   float aenergya = this->read_s32_register16_(0x031E);
-  
   ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
-  ESP_LOGD(TAG, "pref = %f", prev);
+  ESP_LOGD(TAG, "pref = %f", pref);
   ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
   ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
   this->active_power_a_sensor_->publish_state(aenergya / pref);
