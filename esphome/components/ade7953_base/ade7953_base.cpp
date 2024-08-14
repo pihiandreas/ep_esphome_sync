@@ -244,18 +244,18 @@ void ADE7953::update() {
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
   
   float aenergya = this->read_s32_register16_(0x031E) * (this->apinva_ ? -1.0f : 1.0f);
-  ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
-  ESP_LOGD(TAG, "pref = %f", pref);
-  ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
-  ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
-  this->active_power_a_sensor_->publish_state(aenergya / pref);
+  // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
+  // ESP_LOGD(TAG, "pref = %f", pref);
+  // ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
+  // ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
+  this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
   this->forward_active_energy_a_total += (aenergya / eref);
   this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
 
   float aenergyb = this->read_s32_register16_(0x031F) * (this->apinvb_ ? -1.0f : 1.0f);
-  ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
-  ESP_LOGD(TAG, "pow b =  %.4f W", aenergyb / pref);
-  this->active_power_b_sensor_->publish_state(aenergyb / pref);
+  // ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
+  // ESP_LOGD(TAG, "pow b =  %.4f W", aenergyb / pref);
+  this->active_power_b_sensor_->publish_state(( abs(aenergyb / pref) < 5.0 ) ? 0.0f : (aenergyb / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
   this->forward_active_energy_b_total += (aenergyb / eref);
   this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
 
