@@ -53,13 +53,21 @@ void ADE7953::setup() {
     // this->write_u8_register16_(0x0010, 0x04);
     this->write_u8_register16_(0x00FE, 0xAD);    // Unlock
     this->write_u16_register16_(0x0120, 0x0030); // see: ADE7953 Data Sheet Rev. C | Page 18 of 72 | ADE7953 POWER-UP PROCEDURE
-
+    // Setup LINE CYCLE ACCUMULATION MODE
+    // 1. PFMODE (bit 3) = 1 in CONFIG (0x102)
+    // 0b00000100 = 0x04 = default
+    // 0b00001100 = 0x0C = default + bit3 
+    this->write_u8_register16_(0x0102, 0x0C);
+    // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
+    // 0b01000000 = 0x40 = default
+    // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
+    this->write_u8_register16_(0x0004, 0x7F);
     // Setup no load detection and thresholds
-    this->write_u32_register16_(0x001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
-    this->write_u32_register16_(0x303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set no load treshold for active power, default: 0x00E419
-    this->write_u32_register16_(0x304, ADE7953_NO_LOAD_THRESHOLD);  // VAR_NOLOAD, Set no load treshold for reactive power, default: 0x00E419
-    this->write_u32_register16_(0x305, 0x0);                        // VA_NOLOAD, Set no load treshold for apparent power, default: 0x000000
-    this->write_u32_register16_(0x001, 0x0);                        // ADE7953_DISNOLOAD off, Enable no load detection
+    this->write_u32_register16_(0x0001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
+    this->write_u32_register16_(0x0303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set no load treshold for active power, default: 0x00E419
+    this->write_u32_register16_(0x0304, ADE7953_NO_LOAD_THRESHOLD);  // VAR_NOLOAD, Set no load treshold for reactive power, default: 0x00E419
+    this->write_u32_register16_(0x0305, 0x0);                        // VA_NOLOAD, Set no load treshold for apparent power, default: 0x000000
+    this->write_u32_register16_(0x0001, 0x0);                        // ADE7953_DISNOLOAD off, Enable no load detection
 
     // Set gains
     this->write_u8_register16_(PGA_V_8, pga_v_);
@@ -84,8 +92,31 @@ void ADE7953::setup() {
     bigain_ = this->read_u32_register16_(BIGAIN_32);
     awgain_ = this->read_u32_register16_(AWGAIN_32);
     bwgain_ = this->read_u32_register16_(BWGAIN_32);
-
-    accmode_ = this->read_u32_register16_(0x301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
+    config_ = this->read_u8_register16_(0x0102);
+    lcycmode_ = this->read_u8_register16_(0x0004);
+    accmode_ = this->read_u32_register16_(0x0301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
+    // initial log after boot
+    // ACCMODE_32: 0x002D1000 => 00000000001011010001000000000000
+    // ACCMODE_32: 0x002D3800 => 00000000001011010011100000000000
+    //                           10987654321098765432109876543210
+    //                            3         2         1         0
+    // 1:0  = 00 = AWATTACC => set to 
+    // 3:2  = 00 = BWATTACC
+    // 5:4  = 00 = AVARACC
+    // 7:6  = 00 = BVARACC
+    // 8    = 0  = AVAACC
+    // 9    = 0  = BVAACC
+    // 10   = 0  = APSIGN_A
+    // 11   = 1  = APSIGN_B
+    // 12   = 1  = VARSIGN_A
+    // 13   = 1  = VARSIGN_B
+    // 15:14= 00 = Reserved
+    // 16   = 1  = ACTNLOAD_A
+    // 17   = 0  = VANLOAD_A
+    // 18   = 1  = VARNLOAD_A
+    // 19   = 1  = ACTNLOAD_B
+    // 20   = 0  = VANLOAD_B
+    // 21   = 1  = VARNLOAD_B
     this->last_update_ = millis();
     this->is_setup_ = true;
   });
@@ -117,6 +148,8 @@ void ADE7953::dump_config() {
   ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
   ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
   ESP_LOGCONFIG(TAG, "  ACCMODE_32: 0x%08jX", (uintmax_t) accmode_);
+  ESP_LOGCONFIG(TAG, "  LCYCMODE_8: 0x%X", lcycmode_);
+  ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
 }
 
 template<typename F>
