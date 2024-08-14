@@ -8,18 +8,23 @@ namespace ade7953_base {
 
 static const char *const TAG = "ade7953";
 
-// static const float ADE_POWER_FACTOR = 154.0f;
-// static const float ADE_WATTSEC_POWER_FACTOR = ADE_POWER_FACTOR * ADE_POWER_FACTOR / 3600;
-
 // from https://github.com/arendst/Tasmota/blob/development/tasmota/tasmota_xnrg_energy/xnrg_07_ade7953.ino
 // #define ADE7953_PREF              1540       // 4194304 / (1540 / 1000) = 2723574 (= WGAIN, VAGAIN and VARGAIN)
 // #define ADE7953_UREF              26000      // 4194304 / (26000 / 10000) = 1613194 (= VGAIN)
 // #define ADE7953_IREF              10000      // 4194304 / (10000 / 10000) = 4194303 (= IGAIN, needs to be different than 4194304 in order to use calib.dat)
-
+// #define ADE7953_NO_LOAD_THRESHOLD 29196      // According to ADE7953 datasheet the default threshold for no load detection is 58,393 use half this value to measure lower (5w) powers.
 static const float ADE7953_PREF = 154.0f;
 static const float ADE7953_UREF = 26000.0f;
 static const float ADE7953_IREF = 100000.0f;
-static const float ADE7953_WATTSEC_PREF = ADE7953_PREF * ADE7953_PREF / 3600.0f;
+static const float ADE7953_WATTSEC_PREF = ADE7953_PREF * ADE7953_PREF / 3600.0f; //  = 6,58777778
+static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
+static const float ADE7953_LSB_PER_WATTSECOND = 2.5;
+static const float ADE7953_POWER_CORRECTION = 23.41494;  // See https://github.com/arendst/Tasmota/pull/16941
+
+// Esphome 'active power' calculation from 'active energy' 0x31E/0x31F:
+// POW(Watt) = READVALUE (int32_t -> float) / (ADE7953_WATTSEC_PREF * time_diff_seconds) => 322W = 4240 / (6,58777778 * 2) =  
+// Tasmota 'active power' calculation:
+// 
 
 void ADE7953::setup() {
   if (this->irq_pin_ != nullptr) {
@@ -152,22 +157,26 @@ void ADE7953::update() {
   this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
   this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
 
+  // Active power & Forward active energy (both from 0x031E / 0x031F)
   const uint32_t now = millis();
   const auto diff = now - this->last_update_;
   this->last_update_ = now;
   // prevent DIV/0
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
-
-  // Active power & Forward active energy (both from 0x031E / 0x031F)
+  
   float aenergya = this->read_s32_register16_(0x031E);
+  ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
+  ESP_LOGD(TAG, "pref = %f", prev);
   ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
+  ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
   this->active_power_a_sensor_->publish_state(aenergya / pref);
   this->forward_active_energy_a_total += (aenergya / eref);
   this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
 
   float aenergyb = this->read_s32_register16_(0x031F);
   ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
+  ESP_LOGD(TAG, "pow b =  %.4f W", aenergyb / pref);
   this->active_power_b_sensor_->publish_state(aenergyb / pref);
   this->forward_active_energy_b_total += (aenergyb / eref);
   this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
