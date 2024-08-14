@@ -170,7 +170,9 @@ void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_
   }
 
   float val = f(this->read_u32_register16_(a_register));
-  if abs(val) < absmin val = 0.0f;
+  if (abs(val) < absmin) { 
+    val = 0.0f;
+  }
   sensor->publish_state(val);
 }
 
@@ -181,7 +183,9 @@ void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_
   }
 
   float val = f(this->read_s32_register16_(a_register));
-  if abs(val) < absmin val = 0.0f;
+  if (abs(val) < absmin) { 
+    val = 0.0f;
+  }
   sensor->publish_state(val);
 }
 
