@@ -114,7 +114,7 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   uint32_t awgain_;
   uint32_t bwgain_;
   uint32_t accmode_;
-  uint8_t config_;
+  uint16_t config_;
   uint8_t lcycmode_;
 
   // bool use_acc_energy_regs_{false};

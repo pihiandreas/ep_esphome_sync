@@ -55,9 +55,9 @@ void ADE7953::setup() {
     this->write_u16_register16_(0x0120, 0x0030); // see: ADE7953 Data Sheet Rev. C | Page 18 of 72 | ADE7953 POWER-UP PROCEDURE
     // Setup LINE CYCLE ACCUMULATION MODE
     // 1. PFMODE (bit 3) = 1 in CONFIG (0x102)
-    // 0b00000100 = 0x04 = default
-    // 0b00001100 = 0x0C = default + bit3 
-    this->write_u8_register16_(0x0102, 0x0C);
+    // 0b 10000000 00000100 = 0x8004 = default
+    // 0b 10000000 00001100 = 0x800C = default + bit3 
+    this->write_u16_register16_(0x0102, 0x800C);
     // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
     // 0b01000000 = 0x40 = default
     // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
@@ -92,7 +92,7 @@ void ADE7953::setup() {
     bigain_ = this->read_u32_register16_(BIGAIN_32);
     awgain_ = this->read_u32_register16_(AWGAIN_32);
     bwgain_ = this->read_u32_register16_(BWGAIN_32);
-    config_ = this->read_u8_register16_(0x0102);
+    config_ = this->read_u16_register16_(0x0102);
     lcycmode_ = this->read_u8_register16_(0x0004);
     accmode_ = this->read_u32_register16_(0x0301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
     // initial log after boot
