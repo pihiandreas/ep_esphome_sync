@@ -169,11 +169,11 @@ void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_
     return;
   }
 
-  float val = this->read_u32_register16_(a_register);
-  if (abs(f(val)) < absmin) { 
+  float val = f(this->read_u32_register16_(a_register));
+  if (abs(val) < absmin) { 
     val = 0.0f;
   }
-  sensor->publish_state(f(val));
+  sensor->publish_state(val);
 }
 
 template<typename F>
