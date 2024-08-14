@@ -58,14 +58,19 @@ void ADE7953::setup() {
     // 0b 10000000 00000100 = 0x8004 = default
     // 0b 10000000 00001100 = 0x800C = default + bit3 
     // this->write_u16_register16_(0x0102, 0x800C);
+    this->write_u16_register16_(0x0102, 0x8004);
     // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
     // 0b01000000 = 0x40 = default
     // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
     // this->write_u8_register16_(0x0004, 0x7F);
+    this->write_u8_register16_(0x0004, 0x40);
+    
     // Setup no load detection and thresholds
-    // this->write_u32_register16_(0x0001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
-    // this->write_u32_register16_(0x0303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set no load treshold for active power, default: 0x00E419
-    // this->write_u32_register16_(0x0304, ADE7953_NO_LOAD_THRESHOLD);  // VAR_NOLOAD, Set no load treshold for reactive power, default: 0x00E419
+    this->write_u32_register16_(0x0001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
+    // this->write_u32_register16_(0x0303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set no load treshold for active power, default: 0x00E419 (58393)
+    this->write_u32_register16_(0x0303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set default: 0x00E419 (58393)
+    // this->write_u32_register16_(0x0304, ADE7953_NO_LOAD_THRESHOLD);  // VAR_NOLOAD, Set no load treshold for reactive power, default: 0x00E419 (58393)
+    this->write_u32_register16_(0x0304, ADE7953_NO_LOAD_THRESHOLD);  // VAR_NOLOAD, Set default: 0x00E419 (58393)
     // this->write_u32_register16_(0x0305, 0x0);                        // VA_NOLOAD, Set no load treshold for apparent power, default: 0x000000
     // this->write_u32_register16_(0x0001, 0x0);                        // ADE7953_DISNOLOAD off, Enable no load detection
 
@@ -92,6 +97,9 @@ void ADE7953::setup() {
     bigain_ = this->read_u32_register16_(BIGAIN_32);
     awgain_ = this->read_u32_register16_(AWGAIN_32);
     bwgain_ = this->read_u32_register16_(BWGAIN_32);
+    ap_noload_ = this->read_u32_register16_(0x0303));
+    var_noload_ = this->read_u32_register16_(0x0304));
+    va_noload_ = this->read_u32_register16_(0x0305));
     config_ = this->read_u16_register16_(0x0102);
     lcycmode_ = this->read_u8_register16_(0x0004);
     accmode_ = this->read_u32_register16_(0x0301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
@@ -148,6 +156,9 @@ void ADE7953::dump_config() {
   ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
   ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
   ESP_LOGCONFIG(TAG, "  ACCMODE_32: 0x%08jX", (uintmax_t) accmode_);
+  ESP_LOGCONFIG(TAG, "  AP_NOLOAD_32: 0x%08jX", (uintmax_t) ap_noload_);
+  ESP_LOGCONFIG(TAG, "  VAR_NOLOAD_32: 0x%08jX", (uintmax_t) var_noload_);
+  ESP_LOGCONFIG(TAG, "  VA_NOLOAD_32: 0x%08jX", (uintmax_t) va_noload_);
   ESP_LOGCONFIG(TAG, "  LCYCMODE_8: 0x%X", lcycmode_);
   ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
 }

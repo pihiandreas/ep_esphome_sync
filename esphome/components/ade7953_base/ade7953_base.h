@@ -113,6 +113,9 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   uint32_t bigain_;
   uint32_t awgain_;
   uint32_t bwgain_;
+  uint32_t ap_noload_;
+  uint32_t var_noload_;
+  uint32_t va_noload_;
   uint32_t accmode_;
   uint16_t config_;
   uint8_t lcycmode_;
