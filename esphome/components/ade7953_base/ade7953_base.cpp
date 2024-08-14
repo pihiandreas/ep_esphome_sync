@@ -57,13 +57,13 @@ void ADE7953::setup() {
     // 1. PFMODE (bit 3) = 1 in CONFIG (0x102)
     // 0b 10000000 00000100 = 0x8004 = default
     // 0b 10000000 00001100 = 0x800C = default + bit3 
-    // this->write_u16_register16_(0x0102, 0x800C);
-    this->write_u16_register16_(0x0102, 0x8004);
+    this->write_u16_register16_(0x0102, 0x800C);
+    // this->write_u16_register16_(0x0102, 0x8004);
     // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
     // 0b01000000 = 0x40 = default
     // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
-    // this->write_u8_register16_(0x0004, 0x7F);
-    this->write_u8_register16_(0x0004, 0x40);
+    this->write_u8_register16_(0x0004, 0x7F);
+    // this->write_u8_register16_(0x0004, 0x40);
     
     // Setup no load detection and thresholds
     this->write_u32_register16_(0x0001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
