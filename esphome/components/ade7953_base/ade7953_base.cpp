@@ -61,7 +61,7 @@ void ADE7953::setup() {
     // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
     // 0b01000000 = 0x40 = default
     // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
-    this->write_u8_register16_(0x0004, 0x7F);
+    // this->write_u8_register16_(0x0004, 0x7F);
     // Setup no load detection and thresholds
     this->write_u32_register16_(0x0001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
     this->write_u32_register16_(0x0303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set no load treshold for active power, default: 0x00E419
