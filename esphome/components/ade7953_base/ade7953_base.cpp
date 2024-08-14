@@ -104,7 +104,7 @@ void ADE7953::setup() {
     lcycmode_ = this->read_u8_register16_(0x0004);
     accmode_ = this->read_u32_register16_(0x0301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
     // initial log after boot
-    //                           00000000001011010001010000000000
+    //             0x002D1400    00000000001011010001010000000000
     // ACCMODE_32: 0x002D1000 => 00000000001011010001000000000000
     // ACCMODE_32: 0x002D3800 => 00000000001011010011100000000000
     //                           10987654321098765432109876543210
@@ -147,7 +147,8 @@ void ADE7953::dump_config() {
   LOG_SENSOR("  ", "Reactive Power B Sensor", this->reactive_power_b_sensor_);
   LOG_SENSOR("  ", "Forward Active Energy A Sensor", this->forward_active_energy_a_sensor_);
   LOG_SENSOR("  ", "Forward Active Energy B Sensor", this->forward_active_energy_b_sensor_);
-  // ESP_LOGCONFIG(TAG, "  USE_ACC_ENERGY_REGS: %d", this->use_acc_energy_regs_);
+  ESP_LOGCONFIG(TAG, "  Invert Active Power A: %d", this->apinva_);
+  ESP_LOGCONFIG(TAG, "  Invert Active Power B: %d", this->apinvb_);
   ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
   ESP_LOGCONFIG(TAG, "  PGA_IA_8: 0x%X", pga_ia_);
   ESP_LOGCONFIG(TAG, "  PGA_IB_8: 0x%X", pga_ib_);
@@ -242,7 +243,7 @@ void ADE7953::update() {
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
   
-  float aenergya = this->read_s32_register16_(0x031E);
+  float aenergya = this->read_s32_register16_(0x031E) * (this->apinva_ ? -1.0f : 1.0f);
   ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
   ESP_LOGD(TAG, "pref = %f", pref);
   ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
@@ -251,7 +252,7 @@ void ADE7953::update() {
   this->forward_active_energy_a_total += (aenergya / eref);
   this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
 
-  float aenergyb = this->read_s32_register16_(0x031F);
+  float aenergyb = this->read_s32_register16_(0x031F) * (this->apinvb_ ? -1.0f : 1.0f);
   ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
   ESP_LOGD(TAG, "pow b =  %.4f W", aenergyb / pref);
   this->active_power_b_sensor_->publish_state(aenergyb / pref);

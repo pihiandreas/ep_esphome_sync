@@ -54,7 +54,11 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   void set_awgain(uint32_t awgain) { awgain_ = awgain; }
   void set_bwgain(uint32_t bwgain) { bwgain_ = bwgain; }
 
-  // void set_use_acc_energy_regs(bool use_acc_energy_regs) { use_acc_energy_regs_ = use_acc_energy_regs; }
+  // Set active power +/- inversion 
+  void set_apinva(bool apinva) { apinva_ = apinva; }
+  void set_apinvb(bool apinvb) { apinvb_ = apinvb; }
+
+  void set_use_acc_energy_regs(bool use_acc_energy_regs) { use_acc_energy_regs_ = use_acc_energy_regs; }
 
   void set_voltage_sensor(sensor::Sensor *voltage_sensor) { voltage_sensor_ = voltage_sensor; }
   void set_frequency_sensor(sensor::Sensor *frequency_sensor) { frequency_sensor_ = frequency_sensor; }
@@ -120,7 +124,9 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   uint16_t config_;
   uint8_t lcycmode_;
 
-  // bool use_acc_energy_regs_{false};
+  bool apinva_{false};
+  bool apinvb_{false};
+
   uint32_t last_update_;
 
   float forward_active_energy_a_total{0};
