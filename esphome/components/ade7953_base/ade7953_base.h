@@ -40,7 +40,7 @@ static const uint32_t BVAGAIN_32 =
 
 class ADE7953 : public PollingComponent, public sensor::Sensor {
  public:
-  void set_irq_pin(InternalGPIOPin *irq_pin) { irq_pin_ = irq_pin; }
+  // void set_irq_pin(InternalGPIOPin *irq_pin) { irq_pin_ = irq_pin; }
 
   // Set PGA input gains: 0 1x, 1 2x, 0b10 4x
   void set_pga_v(uint8_t pga_v) { pga_v_ = pga_v; }
@@ -90,7 +90,7 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   void update() override;
 
  protected:
-  InternalGPIOPin *irq_pin_{nullptr};
+  // InternalGPIOPin *irq_pin_{nullptr};
   bool is_setup_{false};
   sensor::Sensor *voltage_sensor_{nullptr};
   sensor::Sensor *frequency_sensor_{nullptr};

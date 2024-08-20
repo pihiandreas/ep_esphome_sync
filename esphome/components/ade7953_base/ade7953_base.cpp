@@ -44,9 +44,9 @@ static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
 // e.g. FFFFEF4F => (-4273 / 2.011) / 6.57699742 = 323.0674 W
 
 void ADE7953::setup() {
-  if (this->irq_pin_ != nullptr) {
-    this->irq_pin_->setup();
-  }
+  // if (this->irq_pin_ != nullptr) {
+  //   this->irq_pin_->setup();
+  // }
 
   // The chip might take up to 100ms to initialise
   this->set_timeout(100, [this]() {
@@ -132,7 +132,7 @@ void ADE7953::setup() {
 }
 
 void ADE7953::dump_config() {
-  LOG_PIN("  IRQ Pin: ", irq_pin_);
+  // LOG_PIN("  IRQ Pin: ", irq_pin_);
   LOG_UPDATE_INTERVAL(this);
   LOG_SENSOR("  ", "Voltage Sensor", this->voltage_sensor_);
   LOG_SENSOR("  ", "Current A Sensor", this->current_a_sensor_);
@@ -225,11 +225,11 @@ void ADE7953::update() {
   if (!this->is_setup_)
     return;
 
-  if (this->irq_pin_ != nullptr) {
-    // Read and reset interrupts
-    this->read_u8_register16_(0x32E);
-    this->read_u8_register16_(0x331);
-  }
+  // if (this->irq_pin_ != nullptr) {
+  //   // Read and reset interrupts
+  //   this->read_u8_register16_(0x32E);
+  //   this->read_u8_register16_(0x331);
+  // }
 
   // Power factor
   this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });

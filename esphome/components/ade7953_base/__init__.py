@@ -3,7 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import sensor
 from esphome import pins
 from esphome.const import (
-    CONF_IRQ_PIN,
+    # CONF_IRQ_PIN,
     CONF_VOLTAGE,
     CONF_FREQUENCY,
     CONF_VOLTAGE_GAIN,
@@ -62,7 +62,7 @@ ADE7953 = ade7953_base_ns.class_("ADE7953", cg.PollingComponent)
 
 ADE7953_CONFIG_SCHEMA = cv.Schema(
     {
-        cv.Optional(CONF_IRQ_PIN): pins.internal_gpio_input_pin_schema,
+        # cv.Optional(CONF_IRQ_PIN): pins.internal_gpio_input_pin_schema,
         cv.Optional(CONF_VOLTAGE): sensor.sensor_schema(
             unit_of_measurement=UNIT_VOLT,
             accuracy_decimals=1,
@@ -183,9 +183,9 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
 async def register_ade7953(var, config):
     await cg.register_component(var, config)
 
-    if irq_pin_config := config.get(CONF_IRQ_PIN):
-        irq_pin = await cg.gpio_pin_expression(irq_pin_config)
-        cg.add(var.set_irq_pin(irq_pin))
+    # if irq_pin_config := config.get(CONF_IRQ_PIN):
+    #     irq_pin = await cg.gpio_pin_expression(irq_pin_config)
+    #     cg.add(var.set_irq_pin(irq_pin))
 
     cg.add(var.set_pga_v(PGA_GAINS[config.get(CONF_VOLTAGE_PGA_GAIN)]))
     cg.add(var.set_pga_ia(PGA_GAINS[config.get(CONF_CURRENT_PGA_GAIN_A)]))
