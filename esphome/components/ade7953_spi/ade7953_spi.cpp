@@ -71,6 +71,7 @@ int16_t AdE7953Spi::read_s16_register16_(uint16_t a_register){
   uint8_t recv[2];
   this->read_array(recv, 2);
   // in = encode_int16(recv[0], recv[1]);
+  in = 0;
   this->disable();
   return in;
 }
@@ -108,6 +109,7 @@ int32_t AdE7953Spi::read_s32_register16_(uint16_t a_register) {
   uint8_t recv[4];
   this->read_array(recv, 4);
   // in = encode_int32(recv[0], recv[1], recv[2], recv[3]);
+  in = 0;
   this->disable();
   return in;
 }
