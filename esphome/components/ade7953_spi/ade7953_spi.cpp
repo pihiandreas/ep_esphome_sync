@@ -7,18 +7,6 @@ namespace ade7953_spi {
 
 static const char *const TAG = "ade7953";
 
-/// missing encode_intX - function (copy from core/helpers.h) 
-/// Encode a 16-bit signed value given the most and least significant byte.
-constexpr int16_t encode_int16(uint8_t msb, uint8_t lsb) {
-  return (static_cast<int16_t>(msb) << 8) | (static_cast<int16_t>(lsb));
-}
-
-/// Encode a 32-bit signed value given four bytes in most to least significant byte order.
-constexpr int32_t encode_int32(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4) {
-  return (static_cast<int32_t>(byte1) << 24) | (static_cast<int32_t>(byte2) << 16) |
-         (static_cast<int32_t>(byte3) << 8) | (static_cast<int32_t>(byte4));
-}
-
 void AdE7953Spi::setup() {
   this->spi_setup();
   ade7953_base::ADE7953::setup();
