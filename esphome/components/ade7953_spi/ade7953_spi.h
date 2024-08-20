@@ -23,10 +23,10 @@ namespace ade7953_spi {
 //          (static_cast<int32_t>(byte3) << 8) | (static_cast<int32_t>(byte4));
 // }
 
-                  //  public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH, spi::CLOCK_PHASE_LEADING,
-                  //                        spi::DATA_RATE_1MHZ> {
 
-class AdE7953Spi : public ade7953_base::ADE7953, public spi::SPIDevice {
+class AdE7953Spi : public ade7953_base::ADE7953,
+                   public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH, spi::CLOCK_PHASE_LEADING,
+                                         spi::DATA_RATE_5MHZ> {
  public:
   void setup() override;
 
