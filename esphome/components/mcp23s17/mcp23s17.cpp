@@ -33,6 +33,10 @@ void MCP23S17::setup() {
 
 #endif // USE_ARDUINO
 #ifdef USE_ESP_IDF
+  delay(5);
+  this->enable();
+  delay(5);
+  this->disable();
   uint16_t cmd = this->device_opcode_;
   uint64_t addr = mcp23x17_base::MCP23X17_IOCONA;
   uint8_t dlen = 1;
