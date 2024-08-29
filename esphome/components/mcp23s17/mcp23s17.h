@@ -9,8 +9,8 @@ namespace esphome {
 namespace mcp23s17 {
 
 class MCP23S17 : public mcp23x17_base::MCP23X17Base,
-                 public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_LOW, spi::CLOCK_PHASE_LEADING,
-                                       spi::DATA_RATE_8MHZ> {
+                 public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH, spi::CLOCK_PHASE_TRAILING,
+                                       spi::DATA_RATE_1MHZ> {
  public:
   MCP23S17() = default;
 
