@@ -105,7 +105,7 @@ class SPIDelegateHw : public SPIDelegate {
   }
 
   /**
-   * Write command, address and data
+   * WRITE command, address and data
    * @param cmd_bits Number of bits to write in the command phase
    * @param cmd The command value to write
    * @param addr_bits Number of bits to write in addr phase
@@ -114,13 +114,28 @@ class SPIDelegateHw : public SPIDelegate {
    * @param length Number of data bytes
    * @param bus_width The number of data lines to use
    */
-  void write_cmd_addr_data(size_t cmd_bits, uint32_t cmd, size_t addr_bits, uint32_t address, const uint8_t *data,
+  void write_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address, const uint8_t *data,
                            size_t length, uint8_t bus_width) override {
     spi_transaction_ext_t desc = {};
     if (length == 0 && cmd_bits == 0 && addr_bits == 0) {
       esph_log_w(TAG, "Nothing to transfer");
       return;
     }
+
+#ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
+    ESP_LOGVV(TAG, "TX:  CMD[%02d  bits]: 0x%04X", cmd_bits, cmd);
+    ESP_LOGVV(TAG, "TX: ADDR[%02d  bits]: 0x%016jX", addr_bits, addr);
+    char debug_buf[LOG_BUF_MAX_LEN];
+    std::string debug_hex;
+    if(data != nullptr && length > 0) {
+      for (size_t i = 0; i < length && i < LOG_BUF_MAX_LEN; i++) {
+        snprintf(debug_buf, sizeof(debug_buf), "%02X", data[i]);
+        debug_hex += debug_buf;
+      }
+      ESP_LOGVV(TAG, "TX: DATA[%02d bytes]: %s %s", length, debug_hex.c_str(), length > LOG_BUF_MAX_LEN ? "..." : "");
+    }    
+#endif
+
     desc.base.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD | SPI_TRANS_VARIABLE_DUMMY;
     if (bus_width == 4) {
       desc.base.flags |= SPI_TRANS_MODE_QIO;
@@ -158,6 +173,75 @@ class SPIDelegateHw : public SPIDelegate {
     } while (length != 0);
   }
 
+  /**
+   * Write command (& address) and then READ data
+   * @param cmd_bits Number of bits to write in the command phase
+   * @param cmd The command value to write
+   * @param addr_bits Number of bits to write in addr phase
+   * @param addr Address data
+   * @param data Read data buffer
+   * @param rx_length Number of data bytes to read
+   * @param bus_width The number of data lines to use
+   */
+  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr, uint8_t *data,
+                           size_t length, uint8_t bus_width) override {
+    spi_transaction_ext_t desc = {};
+    if (length == 0 && cmd_bits == 0 && addr_bits == 0) {
+      esph_log_w(TAG, "Nothing to transfer");
+      return;
+    }
+    if (length * 8 + cmd_bits + addr_bits > MAX_TRANSFER_SIZE * 8) {
+      ESP_LOGE(TAG, "Transaction max transfer size exceeded, chunks not implemented");
+      return;
+    }
+
+#ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
+    ESP_LOGVV(TAG, "TX:  CMD[%02d  bits]: 0x%04X", cmd_bits, cmd);
+    ESP_LOGVV(TAG, "TX: ADDR[%02d  bits]: 0x%016jX", addr_bits, addr);
+#endif
+
+    desc.base.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD | SPI_TRANS_VARIABLE_DUMMY;
+    if (bus_width == 4) {
+      desc.base.flags |= SPI_TRANS_MODE_QIO;
+    } else if (bus_width == 8) {
+      desc.base.flags |= SPI_TRANS_MODE_OCT;
+    }
+
+    desc.command_bits = cmd_bits;
+    desc.address_bits = addr_bits;
+    desc.dummy_bits = 0; // no extra clocks before data phase
+    desc.base.cmd = cmd;
+    desc.base.addr = addr;
+
+    if (data != nullptr) {
+      desc.base.length = length * 8;
+      desc.base.rxlength = desc.base.length;
+      desc.base.tx_buffer = nullptr; // not sending data, only sending cmd and addr
+      desc.base.rx_buffer = data;
+      esp_err_t err = spi_device_polling_start(this->handle_, (spi_transaction_t *) &desc, portMAX_DELAY);
+      if (err == ESP_OK) {
+        err = spi_device_polling_end(this->handle_, portMAX_DELAY);
+      }
+      if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Transmit failed - err %X", err);
+        return;
+      }
+    }
+
+#ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
+    char debug_buf[LOG_BUF_MAX_LEN];
+    std::string debug_hex;
+    if(data != nullptr && length > 0) {
+      for (size_t i = 0; i < length && i < LOG_BUF_MAX_LEN; i++) {
+        snprintf(debug_buf, sizeof(debug_buf), "%02X", data[i]);
+        debug_hex += debug_buf;
+      }
+      ESP_LOGVV(TAG, "RX: DATA[%02d bytes]: %s %s", length, debug_hex.c_str(), length > LOG_BUF_MAX_LEN ? "..." : "");
+    }
+#endif
+
+  }
+  
   void transfer(uint8_t *ptr, size_t length) override { this->transfer(ptr, ptr, length); }
 
   uint8_t transfer(uint8_t data) override {

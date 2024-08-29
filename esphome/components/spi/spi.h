@@ -207,10 +207,16 @@ class SPIDelegate {
     esph_log_e("spi_device", "variable length write not implemented");
   }
 
-  virtual void write_cmd_addr_data(size_t cmd_bits, uint32_t cmd, size_t addr_bits, uint32_t address,
+  virtual void write_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address,
                                    const uint8_t *data, size_t length, uint8_t bus_width) {
     esph_log_e("spi_device", "write_cmd_addr_data not implemented");
   }
+
+  virtual void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address,
+                                   uint8_t *data, size_t length, uint8_t bus_width) {
+    esph_log_e("spi_device", "read_cmd_addr_data not implemented");
+  }
+
   // write 16 bits
   virtual void write16(uint16_t data) {
     if (this->bit_order_ == BIT_ORDER_MSB_FIRST) {
@@ -432,9 +438,14 @@ class SPIDevice : public SPIClient {
    * @param length Number of data bytes
    * @param bus_width The number of data lines to use for the data phase.
    */
-  void write_cmd_addr_data(size_t cmd_bits, uint32_t cmd, size_t addr_bits, uint32_t address, const uint8_t *data,
+  void write_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address, const uint8_t *data,
                            size_t length, uint8_t bus_width = 1) {
     this->delegate_->write_cmd_addr_data(cmd_bits, cmd, addr_bits, address, data, length, bus_width);
+  }
+
+  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address, uint8_t *data,
+                           size_t length, uint8_t bus_width = 1) {
+    this->delegate_->read_cmd_addr_data(cmd_bits, cmd, addr_bits, address, data, length, bus_width);
   }
 
   void write_byte(uint8_t data) { this->delegate_->write_array(&data, 1); }
