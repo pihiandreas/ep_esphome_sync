@@ -177,7 +177,7 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_ACTIVE_POWER_INVERTED_A, default=False): cv.boolean,
         cv.Optional(CONF_ACTIVE_POWER_INVERTED_B, default=False): cv.boolean,
     }
-).extend(cv.polling_component_schema("5s"))
+).extend(cv.polling_component_schema("60s"))
 
 
 async def register_ade7953(var, config):
