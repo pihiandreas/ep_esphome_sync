@@ -68,12 +68,8 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   void set_apparent_power_a_sensor(sensor::Sensor *apparent_power_a) { apparent_power_a_sensor_ = apparent_power_a; }
   void set_apparent_power_b_sensor(sensor::Sensor *apparent_power_b) { apparent_power_b_sensor_ = apparent_power_b; }
 
-  void set_active_power_a_sensor(sensor::Sensor *active_power_a_sensor) {
-    active_power_a_sensor_ = active_power_a_sensor;
-  }
-  void set_active_power_b_sensor(sensor::Sensor *active_power_b_sensor) {
-    active_power_b_sensor_ = active_power_b_sensor;
-  }
+  void set_active_power_a_sensor(sensor::Sensor *sens) { active_power_a_sensor_ = sens; }
+  void set_active_power_b_sensor(sensor::Sensor *sens) { active_power_b_sensor_ = sens; }
 
   void set_reactive_power_a_sensor(sensor::Sensor *reactive_power_a) { reactive_power_a_sensor_ = reactive_power_a; }
   void set_reactive_power_b_sensor(sensor::Sensor *reactive_power_b) { reactive_power_b_sensor_ = reactive_power_b; }
@@ -124,8 +120,8 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
 
   uint32_t last_update_;
 
-  float forward_active_energy_a_total = 0;
-  float forward_active_energy_b_total = 0;
+  float forward_active_energy_a_total = 0.0f;
+  float forward_active_energy_b_total = 0.0f;
 
   template<typename F> void update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);

@@ -239,24 +239,31 @@ void ADE7953::update() {
   this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
   this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
 
-  // // Active power & Forward active energy (both from 0x031E / 0x031F)
-  // const uint32_t now = millis();
-  // const auto diff = now - this->last_update_;
-  // this->last_update_ = now;
-  // // prevent DIV/0
-  // float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
-  // float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
+  // Active power & Forward active energy (both from 0x031E / 0x031F)
+  const uint32_t now = millis();
+  const auto diff = now - this->last_update_;
+  this->last_update_ = now;
+  // prevent DIV/0
+  float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
+  float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
   
-  // int32_t buf;
-  // this->read_s32_register16_(0x031E, &buf);
-  // float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
-  // // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
-  // // ESP_LOGD(TAG, "pref = %f", pref);
-  // // ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
-  // // ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
-  // this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
-  // this->forward_active_energy_a_total += (aenergya / eref);
-  // this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
+  int32_t buf;
+  this->read_s32_register16_(0x031E, &buf);
+  float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
+  // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
+  // ESP_LOGD(TAG, "pref = %f", pref);
+  // ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
+  // ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
+  if (this->active_power_a_sensor_ !== nullptr) {
+    this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
+  }
+  if (this->forward_active_energy_a_sensor_ !== nullptr) {
+    this->forward_active_energy_a_total += (aenergya / eref);
+    this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
+  }
+  // 
+  // 
+  // 
 
   // this->read_s32_register16_(0x031F, &buf);
   // float aenergyb = (float)buf * (this->apinvb_ ? -1.0f : 1.0f);
