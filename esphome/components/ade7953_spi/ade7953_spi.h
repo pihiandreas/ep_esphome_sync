@@ -11,19 +11,6 @@
 namespace esphome {
 namespace ade7953_spi {
 
-// /// missing encode_intX - function (copy from core/helpers.h)
-// /// Encode a 16-bit signed value given the most and least significant byte.
-// constexpr int16_t encode_int16(uint8_t msb, uint8_t lsb) {
-//   return (static_cast<int16_t>(msb) << 8) | (static_cast<int16_t>(lsb));
-// }
-
-// /// Encode a 32-bit signed value given four bytes in most to least significant byte order.
-// constexpr int32_t encode_int32(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4) {
-//   return (static_cast<int32_t>(byte1) << 24) | (static_cast<int32_t>(byte2) << 16) |
-//          (static_cast<int32_t>(byte3) << 8) | (static_cast<int32_t>(byte4));
-// }
-
-
 class AdE7953Spi : public ade7953_base::ADE7953,
                    public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH, spi::CLOCK_PHASE_TRAILING,
                                          spi::DATA_RATE_1MHZ> {

@@ -44,9 +44,6 @@ static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
 // e.g. FFFFEF4F => (-4273 / 2.011) / 6.57699742 = 323.0674 W
 
 void ADE7953::setup() {
-  // if (this->irq_pin_ != nullptr) {
-  //   this->irq_pin_->setup();
-  // }
 
   // The chip might take up to 100ms to initialise
   this->set_timeout(100, [this]() {
@@ -133,7 +130,6 @@ void ADE7953::setup() {
 }
 
 void ADE7953::dump_config() {
-  // LOG_PIN("  IRQ Pin: ", irq_pin_);
   LOG_UPDATE_INTERVAL(this);
   // LOG_SENSOR("  ", "Voltage Sensor", this->voltage_sensor_);
   // LOG_SENSOR("  ", "Current A Sensor", this->current_a_sensor_);
@@ -150,14 +146,14 @@ void ADE7953::dump_config() {
   // LOG_SENSOR("  ", "Forward Active Energy B Sensor", this->forward_active_energy_b_sensor_);
   // ESP_LOGCONFIG(TAG, "  Invert Active Power A: %d", this->apinva_);
   // ESP_LOGCONFIG(TAG, "  Invert Active Power B: %d", this->apinvb_);
-  ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
-  ESP_LOGCONFIG(TAG, "  PGA_IA_8: 0x%X", pga_ia_);
-  ESP_LOGCONFIG(TAG, "  PGA_IB_8: 0x%X", pga_ib_);
-  ESP_LOGCONFIG(TAG, "  VGAIN_32: 0x%08jX", (uintmax_t) vgain_);
-  ESP_LOGCONFIG(TAG, "  AIGAIN_32: 0x%08jX", (uintmax_t) aigain_);
-  ESP_LOGCONFIG(TAG, "  BIGAIN_32: 0x%08jX", (uintmax_t) bigain_);
-  ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
-  ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
+  // ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
+  // ESP_LOGCONFIG(TAG, "  PGA_IA_8: 0x%X", pga_ia_);
+  // ESP_LOGCONFIG(TAG, "  PGA_IB_8: 0x%X", pga_ib_);
+  // ESP_LOGCONFIG(TAG, "  VGAIN_32: 0x%08jX", (uintmax_t) vgain_);
+  // ESP_LOGCONFIG(TAG, "  AIGAIN_32: 0x%08jX", (uintmax_t) aigain_);
+  // ESP_LOGCONFIG(TAG, "  BIGAIN_32: 0x%08jX", (uintmax_t) bigain_);
+  // ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
+  // ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
   // ESP_LOGCONFIG(TAG, "  ACCMODE_32: 0x%08jX", (uintmax_t) accmode_);
   // ESP_LOGCONFIG(TAG, "  AP_NOLOAD_32: 0x%08jX", (uintmax_t) ap_noload_);
   // ESP_LOGCONFIG(TAG, "  VAR_NOLOAD_32: 0x%08jX", (uintmax_t) var_noload_);
