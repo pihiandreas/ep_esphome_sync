@@ -163,14 +163,13 @@ void ADE7953::dump_config() {
   ESP_LOGD(TAG, "Debug SPI:");
   uint8_t val8{0};
   this->read_u8_register16_(0x0004, &val8);
-  ESP_LOGD(TAG, "  LCYCMODE : 0x0004 = 0x%02X (expect: 0x40)", val8);
+  ESP_LOGD(TAG, "  LCYCMODE : 0x0004 = 0x%02X (default: 0x40)", val8);
   uint16_t val16{0};
   this->read_u16_register16_(0x0102, &val16);
-  ESP_LOGD(TAG, "  CONFIG   : 0x0102 = 0x%04X (expect: 0x8004)", val16);
+  ESP_LOGD(TAG, "  CONFIG   : 0x0102 = 0x%04X (default: 0x8004)", val16);
   uint32_t val32{0};
   this->read_u32_register16_(0x0303, &val32);
-  ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08X (expect: 0x0000E419)", val32);
-
+  ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08X (default: 0x0000E419)", val32);
 }
 
 template<typename F>
@@ -275,9 +274,9 @@ void ADE7953::update() {
   // this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, 0.0f, [pref](float val) { return val / pref; });
   // this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, 0.0f, [pref](float val) { return val / pref; });
 
-  // // Current
-  // this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, 0.05f, [](float val) { return val / ADE7953_IREF; });
-  // this->update_sensor_from_u32_register16_(this->current_b_sensor_, 0x031B, 0.05f, [](float val) { return val / ADE7953_IREF; });
+  // Current
+  this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, 0.05f, [](float val) { return val / ADE7953_IREF; });
+  this->update_sensor_from_u32_register16_(this->current_b_sensor_, 0x031B, 0.05f, [](float val) { return val / ADE7953_IREF; });
 
   // Voltage
   this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, 0.0f, [](float val) { return val / ADE7953_UREF; });
