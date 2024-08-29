@@ -25,23 +25,23 @@ namespace ade7953_spi {
 
 
 class AdE7953Spi : public ade7953_base::ADE7953,
-                   public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH, spi::CLOCK_PHASE_LEADING,
-                                         spi::DATA_RATE_5MHZ> {
+                   public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH, spi::CLOCK_PHASE_TRAILING,
+                                         spi::DATA_RATE_1MHZ> {
  public:
   void setup() override;
 
   void dump_config() override;
 
  protected:
-  uint8_t read_u8_register16_(uint16_t a_register);
-  int16_t read_s16_register16_(uint16_t a_register);
-  uint16_t read_u16_register16_(uint16_t a_register);
-  int32_t read_s32_register16_(uint16_t a_register);
-  uint32_t read_u32_register16_(uint16_t a_register);
+  void read_u8_register16_(uint16_t reg, uint8_t *value);
+  void read_s16_register16_(uint16_t reg, int16_t *value);
+  void read_u16_register16_(uint16_t reg, uint16_t *value);
+  void read_s32_register16_(uint16_t reg, int32_t *value);
+  void read_u32_register16_(uint16_t reg, uint32_t *value);
 
-  void write_u8_register16_(uint16_t a_register, uint8_t value);
-  void write_u16_register16_(uint16_t a_register, uint16_t value);
-  void write_u32_register16_(uint16_t a_register, uint32_t value);
+  void write_u8_register16_(uint16_t reg, uint8_t value);
+  void write_u16_register16_(uint16_t reg, uint16_t value);
+  void write_u32_register16_(uint16_t reg, uint32_t value);
   // void write_s32_register16_(uint16_t a_register, int32_t value);
   
   // bool ade_write_8(uint16_t reg, uint8_t value) override;

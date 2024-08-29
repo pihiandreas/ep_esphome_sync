@@ -89,20 +89,21 @@ void ADE7953::setup() {
     // this->write_s32_register16_(0x0392, 0xF7D6); // BIRMSOS
 
     // Read back gains for debugging
-    pga_v_ = this->read_u8_register16_(PGA_V_8);
-    pga_ia_ = this->read_u8_register16_(PGA_IA_8);
-    pga_ib_ = this->read_u8_register16_(PGA_IB_8);
-    vgain_ = this->read_u32_register16_(AVGAIN_32);
-    aigain_ = this->read_u32_register16_(AIGAIN_32);
-    bigain_ = this->read_u32_register16_(BIGAIN_32);
-    awgain_ = this->read_u32_register16_(AWGAIN_32);
-    bwgain_ = this->read_u32_register16_(BWGAIN_32);
-    ap_noload_ = this->read_u32_register16_(0x0303);
-    var_noload_ = this->read_u32_register16_(0x0304);
-    va_noload_ = this->read_u32_register16_(0x0305);
-    config_ = this->read_u16_register16_(0x0102);
-    lcycmode_ = this->read_u8_register16_(0x0004);
-    accmode_ = this->read_u32_register16_(0x0301); // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
+    this->read_u8_register16_(PGA_V_8, &pga_v_);
+    this->read_u8_register16_(PGA_IA_8, &pga_ia_);
+    this->read_u8_register16_(PGA_IB_8, &pga_ib_);
+    this->read_u32_register16_(AVGAIN_32, &avgain_);
+    this->read_u32_register16_(AIGAIN_32, &aigain_);
+    this->read_u32_register16_(BIGAIN_32, &bigain_);
+    this->read_u32_register16_(AWGAIN_32, &awgain_);
+    this->read_u32_register16_(BWGAIN_32, &bwgain_);
+    this->read_u32_register16_(0x0303, &ap_noload_);
+    this->read_u32_register16_(0x0304, &var_noload_);
+    this->read_u32_register16_(0x0305, &va_noload_);
+    this->read_u16_register16_(0x0102, &config_);
+    this->read_u8_register16_(0x0004, &lcycmode_);
+    this->read_u32_register16_(0x0301, &accmode_);
+    // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
     // initial log after boot
     //             0x002D1400    00000000001011010001010000000000
     // ACCMODE_32: 0x002D1000 => 00000000001011010001000000000000
@@ -170,8 +171,10 @@ void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_
   if (sensor == nullptr) {
     return;
   }
+  uint32_t dat{0};
+  this->read_u32_register16_(a_register, &dat)
+  float val = f(dat);
 
-  float val = f(this->read_u32_register16_(a_register));
   if (abs(val) < absmin) { 
     val = 0.0f;
   }
@@ -183,8 +186,9 @@ void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_
   if (sensor == nullptr) {
     return;
   }
-
-  float val = f(this->read_s32_register16_(a_register));
+  int32_t dat{0};
+  this->read_s32_register16_(a_register, &dat)
+  float val = f(dat);
   if (abs(val) < absmin) { 
     val = 0.0f;
   }
@@ -196,9 +200,9 @@ void ADE7953::update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_
   if (sensor == nullptr) {
     return;
   }
-
-  float val = this->read_s16_register16_(a_register);
-  sensor->publish_state(f(val));
+  int16_t dat{0};
+  this->read_s16_register16_(a_register, &dat)
+  sensor->publish_state(f((float)dat));
 }
 
 template<typename F>
@@ -206,9 +210,9 @@ void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_
   if (sensor == nullptr) {
     return;
   }
-
-  float val = this->read_u16_register16_(a_register);
-  sensor->publish_state(f(val));
+  uint16_t dat{0};
+  this->read_u16_register16_(a_register, &dat)
+  sensor->publish_state(f((float)dat));
 }
 
 template<typename F>
@@ -216,9 +220,9 @@ void ADE7953::update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t
   if (sensor == nullptr) {
     return;
   }
-
-  float val = this->read_u8_register16_(a_register);
-  sensor->publish_state(f(val));
+  uin8_t dat{0};
+  this->read_u8_register16_(a_register, &dat)
+  sensor->publish_state(f((float)dat));
 }
 
 void ADE7953::update() {
