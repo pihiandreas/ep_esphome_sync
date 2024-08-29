@@ -47,21 +47,50 @@ void MCP23S17::dump_config() {
 }
 
 bool MCP23S17::read_reg(uint8_t reg, uint8_t *value) {
+#ifdef USE_ARDUINO
   this->enable();
   this->transfer_byte(this->device_opcode_ | 1);
   this->transfer_byte(reg);
   *value = this->transfer_byte(0xFF);
   this->disable();
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  uint16_t cmd = (this->device_opcode_ | 1);
+  uint64_t addr = reg;
+  uint8_t dlen = 1;
+  uint8_t buf[dlen] = {0};
+
+  this->enable();
+  this->read_cmd_addr_data(8, cmd, 8, addr, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+
+  *value = buf[0];
+#endif  // USE_ESP_IDF
+
   return true;
 }
 
 bool MCP23S17::write_reg(uint8_t reg, uint8_t value) {
+#ifdef USE_ARDUINO
   this->enable();
   this->transfer_byte(this->device_opcode_);
   this->transfer_byte(reg);
   this->transfer_byte(value);
 
   this->disable();
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  uint16_t cmd = this->device_opcode_;
+  uint64_t addr = reg;
+  uint8_t dlen = 1;
+  uint8_t buf[dlen] = {0};
+  buf[0] = value;
+
+  this->enable();
+  this->write_cmd_addr_data(8, cmd, 8, addr, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+#endif  // USE_ESP_IDF
+
   return true;
 }
 
