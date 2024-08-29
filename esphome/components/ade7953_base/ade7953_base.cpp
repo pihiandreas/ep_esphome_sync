@@ -187,7 +187,7 @@ void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_
     return;
   }
   int32_t dat{0};
-  this->read_s32_register16_(a_register, &dat)
+  this->read_s32_register16_(a_register, &dat);
   float val = f(dat);
   if (abs(val) < absmin) { 
     val = 0.0f;
@@ -201,7 +201,7 @@ void ADE7953::update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_
     return;
   }
   int16_t dat{0};
-  this->read_s16_register16_(a_register, &dat)
+  this->read_s16_register16_(a_register, &dat);
   sensor->publish_state(f((float)dat));
 }
 
@@ -211,7 +211,7 @@ void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_
     return;
   }
   uint16_t dat{0};
-  this->read_u16_register16_(a_register, &dat)
+  this->read_u16_register16_(a_register, &dat);
   sensor->publish_state(f((float)dat));
 }
 
@@ -221,7 +221,7 @@ void ADE7953::update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t
     return;
   }
   uin8_t dat{0};
-  this->read_u8_register16_(a_register, &dat)
+  this->read_u8_register16_(a_register, &dat);
   sensor->publish_state(f((float)dat));
 }
 
