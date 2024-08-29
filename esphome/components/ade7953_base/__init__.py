@@ -191,8 +191,8 @@ async def register_ade7953(var, config):
     cg.add(var.set_bigain(config.get(CONF_CURRENT_GAIN_B)))
     cg.add(var.set_awgain(config.get(CONF_ACTIVE_POWER_GAIN_A)))
     cg.add(var.set_bwgain(config.get(CONF_ACTIVE_POWER_GAIN_B)))
-    cg.add(var.set_apinva(config.get(CONF_ACTIVE_POWER_INVERTED_A)))
-    cg.add(var.set_apinvb(config.get(CONF_ACTIVE_POWER_INVERTED_B)))
+    # cg.add(var.set_apinva(config.get(CONF_ACTIVE_POWER_INVERTED_A)))
+    # cg.add(var.set_apinvb(config.get(CONF_ACTIVE_POWER_INVERTED_B)))
 
     for key in [
         CONF_VOLTAGE,

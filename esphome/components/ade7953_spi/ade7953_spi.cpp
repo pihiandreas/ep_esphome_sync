@@ -45,6 +45,96 @@ void AdE7953Spi::dump_config() {
 //       - a WRITE-transaction: 3 consecutive calls to write_cmd_addr_data(data-phase-only).
 //       - a READ-transaction: 2 calls to write_cmd_addr_data(data-phase-only) and 1 call to read_cmd_addr_data(data-phase-only).
 
+
+void AdE7953Spi::write_u8_register16_(uint16_t reg, uint8_t value) {
+#ifdef USE_ARDUINO
+  this->enable();
+  this->write_byte16(reg);
+  this->transfer_byte(0);
+  this->transfer_byte(value);
+  this->disable();
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  uint16_t cmd = reg;
+  uint64_t rw_byte = 0x0;
+  uint8_t dlen = 1;
+  uint8_t buf[dlen] = {0};
+  buf[0] = value;
+
+  this->enable();
+  this->write_cmd_addr_data(16, cmd, 8, rw_byte, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+#endif  // USE_ESP_IDF
+}
+
+void AdE7953Spi::write_u16_register16_(uint16_t reg, uint16_t value) {
+#ifdef USE_ARDUINO
+  this->enable();
+  this->write_byte16(reg);
+  this->transfer_byte(0);
+  this->write_byte16(value);
+  this->disable();
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  uint16_t cmd = reg;
+  uint64_t rw_byte = 0x0;
+  uint8_t dlen = 2;
+  uint8_t buf[dlen] = {0};
+  buf[0] = (value >> 8);
+  buf[1] = value & 0xff;
+
+  this->enable();
+  this->write_cmd_addr_data(16, cmd, 8, rw_byte, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+#endif  // USE_ESP_IDF
+}
+
+void AdE7953Spi::write_u32_register16_(uint16_t reg, uint32_t value) {
+#ifdef USE_ARDUINO
+  this->enable();
+  this->write_byte16(reg);
+  this->transfer_byte(0);
+  this->write_byte16(value >> 16);
+  this->write_byte16(value & 0xFFFF);
+  this->disable();
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  // Example of writing reg(2byte) + rw(1byte) + value as three
+  // consecutive calls with only data-phase.
+  // uint8_t buf[4] = {0};
+  // this->enable();
+  // buf[0] = (reg >> 8);
+  // buf[1] = reg & 0xff;
+  // this->write_cmd_addr_data(0, 0, 0, 0, (uint8_t *) &buf, 2, 1);
+  // buf[0] = 0x0;
+  // this->write_cmd_addr_data(0, 0, 0, 0, (uint8_t *) &buf, 1, 1);
+  // buf[0] = (value >> 24);
+  // buf[1] = (value >> 16);
+  // buf[2] = (value >> 8);
+  // buf[3] = value & 0xff;
+  // this->write_cmd_addr_data(0, 0, 0, 0, (uint8_t *) &buf, 4, 1);
+  // this->disable();
+
+  uint16_t cmd = reg;
+  uint64_t rw_byte = 0x0;
+  uint8_t dlen = 4;
+  uint8_t buf[dlen] = {0};
+  buf[0] = (value >> 24);
+  buf[1] = (value >> 16);
+  buf[2] = (value >> 8);
+  buf[3] = value & 0xff;
+
+  this->enable();
+  this->write_cmd_addr_data(16, cmd, 8, rw_byte, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+#endif  // USE_ESP_IDF
+}
+
+// void AdE7953Spi::write_s32_register16_(uint16_t a_register, int32_t value) {
+//   int32_t out = convert_big_endian(value);
+//   this->write_register16(a_register, reinterpret_cast<uint8_t *>(&out), sizeof(out));
+// }
+
 void AdE7953Spi::read_u8_register16_(uint16_t reg, uint8_t *value) {
 #ifdef USE_ARDUINO
   this->enable();
@@ -156,94 +246,7 @@ void AdE7953Spi::read_s32_register16_(uint16_t reg, int32_t *value) {
   // return in;
 }
 
-void AdE7953Spi::write_u8_register16_(uint16_t reg, uint8_t value){
-#ifdef USE_ARDUINO
-  this->enable();
-  this->write_byte16(reg);
-  this->transfer_byte(0);
-  this->transfer_byte(value);
-  this->disable();
-#endif // USE_ARDUINO
-#ifdef USE_ESP_IDF
-  uint16_t cmd = reg;
-  uint64_t rw_byte = 0x0;
-  uint8_t dlen = 1;
-  uint8_t buf[dlen] = {0};
-  buf[0] = value;
 
-  this->enable();
-  this->write_cmd_addr_data(16, cmd, 8, rw_byte, (uint8_t *) &buf, dlen, 1);
-  this->disable();
-#endif  // USE_ESP_IDF
-}
-
-void AdE7953Spi::write_u16_register16_(uint16_t reg, uint16_t value) {
-#ifdef USE_ARDUINO
-  this->enable();
-  this->write_byte16(reg);
-  this->transfer_byte(0);
-  this->write_byte16(value);
-  this->disable();
-#endif // USE_ARDUINO
-#ifdef USE_ESP_IDF
-  uint16_t cmd = reg;
-  uint64_t rw_byte = 0x0;
-  uint8_t dlen = 2;
-  uint8_t buf[dlen] = {0};
-  buf[0] = (value >> 8);
-  buf[1] = value & 0xff;
-
-  this->enable();
-  this->write_cmd_addr_data(16, cmd, 8, rw_byte, (uint8_t *) &buf, dlen, 1);
-  this->disable();
-#endif  // USE_ESP_IDF
-}
-
-void AdE7953Spi::write_u32_register16_(uint16_t reg, uint32_t value) {
-#ifdef USE_ARDUINO
-  this->enable();
-  this->write_byte16(reg);
-  this->transfer_byte(0);
-  this->write_byte16(value >> 16);
-  this->write_byte16(value & 0xFFFF);
-  this->disable();
-#endif // USE_ARDUINO
-#ifdef USE_ESP_IDF
-  // Example of writing reg(2byte) + rw(1byte) + value as three
-  // consecutive calls with only data-phase.
-  // uint8_t buf[4] = {0};
-  // this->enable();
-  // buf[0] = (reg >> 8);
-  // buf[1] = reg & 0xff;
-  // this->write_cmd_addr_data(0, 0, 0, 0, (uint8_t *) &buf, 2, 1);
-  // buf[0] = 0x0;
-  // this->write_cmd_addr_data(0, 0, 0, 0, (uint8_t *) &buf, 1, 1);
-  // buf[0] = (value >> 24);
-  // buf[1] = (value >> 16);
-  // buf[2] = (value >> 8);
-  // buf[3] = value & 0xff;
-  // this->write_cmd_addr_data(0, 0, 0, 0, (uint8_t *) &buf, 4, 1);
-  // this->disable();
-
-  uint16_t cmd = reg;
-  uint64_t rw_byte = 0x0;
-  uint8_t dlen = 4;
-  uint8_t buf[dlen] = {0};
-  buf[0] = (value >> 24);
-  buf[1] = (value >> 16);
-  buf[2] = (value >> 8);
-  buf[3] = value & 0xff;
-
-  this->enable();
-  this->write_cmd_addr_data(16, cmd, 8, rw_byte, (uint8_t *) &buf, dlen, 1);
-  this->disable();
-#endif  // USE_ESP_IDF
-}
-
-// void AdE7953Spi::write_s32_register16_(uint16_t a_register, int32_t value) {
-//   int32_t out = convert_big_endian(value);
-//   this->write_register16(a_register, reinterpret_cast<uint8_t *>(&out), sizeof(out));
-// }
 
 }  // namespace ade7953_spi
 }  // namespace esphome

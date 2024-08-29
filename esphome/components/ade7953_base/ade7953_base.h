@@ -40,8 +40,6 @@ static const uint32_t BVAGAIN_32 =
 
 class ADE7953 : public PollingComponent, public sensor::Sensor {
  public:
-  // void set_irq_pin(InternalGPIOPin *irq_pin) { irq_pin_ = irq_pin; }
-
   // Set PGA input gains: 0 1x, 1 2x, 0b10 4x
   void set_pga_v(uint8_t pga_v) { pga_v_ = pga_v; }
   void set_pga_ia(uint8_t pga_ia) { pga_ia_ = pga_ia; }
@@ -80,8 +78,8 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   void set_reactive_power_a_sensor(sensor::Sensor *reactive_power_a) { reactive_power_a_sensor_ = reactive_power_a; }
   void set_reactive_power_b_sensor(sensor::Sensor *reactive_power_b) { reactive_power_b_sensor_ = reactive_power_b; }
 
-  void set_forward_active_energy_a_sensor(sensor::Sensor *forward_active_energy_a) { forward_active_energy_a_sensor_ = forward_active_energy_a; }
-  void set_forward_active_energy_b_sensor(sensor::Sensor *forward_active_energy_b) { forward_active_energy_b_sensor_ = forward_active_energy_b; }
+  // void set_forward_active_energy_a_sensor(sensor::Sensor *forward_active_energy_a) { forward_active_energy_a_sensor_ = forward_active_energy_a; }
+  // void set_forward_active_energy_b_sensor(sensor::Sensor *forward_active_energy_b) { forward_active_energy_b_sensor_ = forward_active_energy_b; }
 
   void setup() override;
 
@@ -90,7 +88,6 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   void update() override;
 
  protected:
-  // InternalGPIOPin *irq_pin_{nullptr};
   bool is_setup_{false};
   sensor::Sensor *voltage_sensor_{nullptr};
   sensor::Sensor *frequency_sensor_{nullptr};
@@ -122,8 +119,8 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   uint16_t config_;
   uint8_t lcycmode_;
 
-  bool apinva_{false};
-  bool apinvb_{false};
+  bool apinva_;
+  bool apinvb_;
 
   uint32_t last_update_;
 
@@ -136,16 +133,16 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   template<typename F> void update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, float absmin, F &&f);
   template<typename F> void update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, float absmin, F &&f);
 
-  virtual void read_u8_register16_(uint16_t reg, uint8_t *value);
-  virtual void read_s16_register16_(uint16_t reg, int16_t *value);
-  virtual void read_u16_register16_(uint16_t reg, uint16_t *value);
-  virtual void read_s32_register16_(uint16_t reg, int32_t *value);
-  virtual void read_u32_register16_(uint16_t reg, uint32_t *value);
+  virtual void read_u8_register16_(uint16_t reg, uint8_t *value) = 0;
+  virtual void read_s16_register16_(uint16_t reg, int16_t *value) = 0;
+  virtual void read_u16_register16_(uint16_t reg, uint16_t *value) = 0;
+  virtual void read_s32_register16_(uint16_t reg, int32_t *value) = 0;
+  virtual void read_u32_register16_(uint16_t reg, uint32_t *value) = 0;
 
-  virtual void write_u8_register16_(uint16_t reg, uint8_t value);
-  virtual void write_u16_register16_(uint16_t reg, uint16_t value);
-  virtual void write_u32_register16_(uint16_t reg, uint32_t value);
-  // virtual void write_s32_register16_(uint16_t a_register, int32_t value);
+  virtual void write_u8_register16_(uint16_t reg, uint8_t value) = 0;
+  virtual void write_u16_register16_(uint16_t reg, uint16_t value) = 0;
+  virtual void write_u32_register16_(uint16_t reg, uint32_t value) = 0;
+  // virtual void write_s32_register16_(uint16_t a_register, int32_t value) = 0;
 
 };
 
