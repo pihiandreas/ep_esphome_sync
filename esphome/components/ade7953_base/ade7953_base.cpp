@@ -254,10 +254,10 @@ void ADE7953::update() {
   // ESP_LOGD(TAG, "pref = %f", pref);
   // ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
   // ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
-  if (this->active_power_a_sensor_ !== nullptr) {
+  if (this->active_power_a_sensor_ != nullptr) {
     this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
   }
-  if (this->forward_active_energy_a_sensor_ !== nullptr) {
+  if (this->forward_active_energy_a_sensor_ != nullptr) {
     this->forward_active_energy_a_total += (aenergya / eref);
     this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
   }
