@@ -131,35 +131,35 @@ void ADE7953::setup() {
 
 void ADE7953::dump_config() {
   LOG_UPDATE_INTERVAL(this);
-  // LOG_SENSOR("  ", "Voltage Sensor", this->voltage_sensor_);
-  // LOG_SENSOR("  ", "Current A Sensor", this->current_a_sensor_);
-  // LOG_SENSOR("  ", "Current B Sensor", this->current_b_sensor_);
-  // LOG_SENSOR("  ", "Power Factor A Sensor", this->power_factor_a_sensor_);
-  // LOG_SENSOR("  ", "Power Factor B Sensor", this->power_factor_b_sensor_);
-  // LOG_SENSOR("  ", "Apparent Power A Sensor", this->apparent_power_a_sensor_);
-  // LOG_SENSOR("  ", "Apparent Power B Sensor", this->apparent_power_b_sensor_);
-  // LOG_SENSOR("  ", "Active Power A Sensor", this->active_power_a_sensor_);
-  // LOG_SENSOR("  ", "Active Power B Sensor", this->active_power_b_sensor_);
-  // LOG_SENSOR("  ", "Reactive Power A Sensor", this->reactive_power_a_sensor_);
-  // LOG_SENSOR("  ", "Reactive Power B Sensor", this->reactive_power_b_sensor_);
-  // LOG_SENSOR("  ", "Forward Active Energy A Sensor", this->forward_active_energy_a_sensor_);
-  // LOG_SENSOR("  ", "Forward Active Energy B Sensor", this->forward_active_energy_b_sensor_);
-  // ESP_LOGCONFIG(TAG, "  Invert Active Power A: %d", this->apinva_);
-  // ESP_LOGCONFIG(TAG, "  Invert Active Power B: %d", this->apinvb_);
-  // ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
-  // ESP_LOGCONFIG(TAG, "  PGA_IA_8: 0x%X", pga_ia_);
-  // ESP_LOGCONFIG(TAG, "  PGA_IB_8: 0x%X", pga_ib_);
-  // ESP_LOGCONFIG(TAG, "  VGAIN_32: 0x%08jX", (uintmax_t) vgain_);
-  // ESP_LOGCONFIG(TAG, "  AIGAIN_32: 0x%08jX", (uintmax_t) aigain_);
-  // ESP_LOGCONFIG(TAG, "  BIGAIN_32: 0x%08jX", (uintmax_t) bigain_);
-  // ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
-  // ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
-  // ESP_LOGCONFIG(TAG, "  ACCMODE_32: 0x%08jX", (uintmax_t) accmode_);
-  // ESP_LOGCONFIG(TAG, "  AP_NOLOAD_32: 0x%08jX", (uintmax_t) ap_noload_);
-  // ESP_LOGCONFIG(TAG, "  VAR_NOLOAD_32: 0x%08jX", (uintmax_t) var_noload_);
-  // ESP_LOGCONFIG(TAG, "  VA_NOLOAD_32: 0x%08jX", (uintmax_t) va_noload_);
-  // ESP_LOGCONFIG(TAG, "  LCYCMODE_8: 0x%X", lcycmode_);
-  // ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
+  LOG_SENSOR("  ", "Voltage Sensor", this->voltage_sensor_);
+  LOG_SENSOR("  ", "Current A Sensor", this->current_a_sensor_);
+  LOG_SENSOR("  ", "Current B Sensor", this->current_b_sensor_);
+  LOG_SENSOR("  ", "Power Factor A Sensor", this->power_factor_a_sensor_);
+  LOG_SENSOR("  ", "Power Factor B Sensor", this->power_factor_b_sensor_);
+  LOG_SENSOR("  ", "Apparent Power A Sensor", this->apparent_power_a_sensor_);
+  LOG_SENSOR("  ", "Apparent Power B Sensor", this->apparent_power_b_sensor_);
+  LOG_SENSOR("  ", "Active Power A Sensor", this->active_power_a_sensor_);
+  LOG_SENSOR("  ", "Active Power B Sensor", this->active_power_b_sensor_);
+  LOG_SENSOR("  ", "Reactive Power A Sensor", this->reactive_power_a_sensor_);
+  LOG_SENSOR("  ", "Reactive Power B Sensor", this->reactive_power_b_sensor_);
+  LOG_SENSOR("  ", "Forward Active Energy A Sensor", this->forward_active_energy_a_sensor_);
+  LOG_SENSOR("  ", "Forward Active Energy B Sensor", this->forward_active_energy_b_sensor_);
+  ESP_LOGCONFIG(TAG, "  Invert Active Power A: %d", this->apinva_);
+  ESP_LOGCONFIG(TAG, "  Invert Active Power B: %d", this->apinvb_);
+  ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
+  ESP_LOGCONFIG(TAG, "  PGA_IA_8: 0x%X", pga_ia_);
+  ESP_LOGCONFIG(TAG, "  PGA_IB_8: 0x%X", pga_ib_);
+  ESP_LOGCONFIG(TAG, "  VGAIN_32: 0x%08jX", (uintmax_t) vgain_);
+  ESP_LOGCONFIG(TAG, "  AIGAIN_32: 0x%08jX", (uintmax_t) aigain_);
+  ESP_LOGCONFIG(TAG, "  BIGAIN_32: 0x%08jX", (uintmax_t) bigain_);
+  ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
+  ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
+  ESP_LOGCONFIG(TAG, "  ACCMODE_32: 0x%08jX", (uintmax_t) accmode_);
+  ESP_LOGCONFIG(TAG, "  AP_NOLOAD_32: 0x%08jX", (uintmax_t) ap_noload_);
+  ESP_LOGCONFIG(TAG, "  VAR_NOLOAD_32: 0x%08jX", (uintmax_t) var_noload_);
+  ESP_LOGCONFIG(TAG, "  VA_NOLOAD_32: 0x%08jX", (uintmax_t) va_noload_);
+  ESP_LOGCONFIG(TAG, "  LCYCMODE_8: 0x%X", lcycmode_);
+  ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
 }
 
 template<typename F>
