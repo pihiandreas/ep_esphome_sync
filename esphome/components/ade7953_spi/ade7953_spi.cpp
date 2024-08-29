@@ -153,7 +153,7 @@ void AdE7953Spi::read_u8_register16_(uint16_t reg, uint8_t *value) {
   this->read_cmd_addr_data(16, cmd, 8, rw, (uint8_t *) &buf, dlen, 1);
   this->disable();
 
-  *value = (static_cast<uint16_t>(buf[0]) << 8) | (static_cast<uint16_t>(buf[1]));
+  *value = buf[0];
 #endif  // USE_ESP_IDF
 }
 
