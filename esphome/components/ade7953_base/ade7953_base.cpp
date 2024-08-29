@@ -247,7 +247,7 @@ void ADE7953::update() {
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
   
-  int32_t buf{0};
+  int32_t buf;
   this->read_s32_register16_(0x031E, &buf);
   float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
   // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
