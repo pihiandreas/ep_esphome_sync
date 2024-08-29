@@ -16,6 +16,7 @@ void MCP23S17::setup() {
   ESP_LOGCONFIG(TAG, "Setting up MCP23S17...");
   this->spi_setup();
 
+#ifdef USE_ARDUINO
   this->enable();
   uint8_t cmd = 0b01000000;
   this->transfer_byte(cmd);
@@ -30,6 +31,29 @@ void MCP23S17::setup() {
   this->transfer_byte(0b00011000);  // Enable HAEN pins for addressing
   this->disable();
 
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  uint16_t cmd = this->device_opcode_;
+  uint64_t addr = mcp23x17_base::MCP23X17_IOCONA;
+  uint8_t dlen = 1;
+  uint8_t buf[dlen] = {0};
+  buf[0] = 0b00011000; // Enable HAEN pins for addressing
+
+  this->enable();
+  this->write_cmd_addr_data(8, cmd, 8, addr, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+
+  cmd = this->device_opcode_ & 0x8;
+  addr = mcp23x17_base::MCP23X17_IOCONA;
+  uint8_t dlen = 1;
+  uint8_t buf[dlen] = {0};
+  buf[0] = 0b00011000; // Enable HAEN pins for addressing
+
+  this->enable();
+  this->write_cmd_addr_data(8, cmd, 8, addr, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+
+#endif // USE_ESP_IDF
   // Read current output register state
   this->read_reg(mcp23x17_base::MCP23X17_OLATA, &this->olat_a_);
   this->read_reg(mcp23x17_base::MCP23X17_OLATB, &this->olat_b_);
@@ -39,6 +63,7 @@ void MCP23S17::setup() {
     this->write_reg(mcp23x17_base::MCP23X17_IOCONA, 0x04);
     this->write_reg(mcp23x17_base::MCP23X17_IOCONB, 0x04);
   }
+
 }
 
 void MCP23S17::dump_config() {
