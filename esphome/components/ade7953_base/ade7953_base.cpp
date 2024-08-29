@@ -92,7 +92,7 @@ void ADE7953::setup() {
     this->read_u8_register16_(PGA_V_8, &pga_v_);
     this->read_u8_register16_(PGA_IA_8, &pga_ia_);
     this->read_u8_register16_(PGA_IB_8, &pga_ib_);
-    this->read_u32_register16_(AVGAIN_32, &avgain_);
+    this->read_u32_register16_(AVGAIN_32, &vgain_);
     this->read_u32_register16_(AIGAIN_32, &aigain_);
     this->read_u32_register16_(BIGAIN_32, &bigain_);
     this->read_u32_register16_(AWGAIN_32, &awgain_);
@@ -172,7 +172,7 @@ void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_
     return;
   }
   uint32_t dat{0};
-  this->read_u32_register16_(a_register, &dat)
+  this->read_u32_register16_(a_register, &dat);
   float val = f(dat);
 
   if (abs(val) < absmin) { 
@@ -220,7 +220,7 @@ void ADE7953::update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t
   if (sensor == nullptr) {
     return;
   }
-  uin8_t dat{0};
+  uint8_t dat{0};
   this->read_u8_register16_(a_register, &dat);
   sensor->publish_state(f((float)dat));
 }
