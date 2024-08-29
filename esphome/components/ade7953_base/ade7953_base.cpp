@@ -54,13 +54,13 @@ void ADE7953::setup() {
     // 1. PFMODE (bit 3) = 1 in CONFIG (0x102)
     // 0b 10000000 00000100 = 0x8004 = default
     // 0b 10000000 00001100 = 0x800C = default + bit3 
-    // this->write_u16_register16_(0x0102, 0x800C);
-    // //this->write_u16_register16_(0x0102, 0x8004);
+    this->write_u16_register16_(0x0102, 0x800C);
+    //this->write_u16_register16_(0x0102, 0x8004);
     // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
     // 0b01000000 = 0x40 = default
     // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
-    // // this->write_u8_register16_(0x0004, 0x7F);
-    // this->write_u8_register16_(0x0004, 0x40);
+    // this->write_u8_register16_(0x0004, 0x7F);
+    this->write_u8_register16_(0x0004, 0x40);
     
     // // Setup no load detection and thresholds
     // this->write_u32_register16_(0x0001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
@@ -94,12 +94,12 @@ void ADE7953::setup() {
     this->read_u32_register16_(BIGAIN_32, &bigain_);
     this->read_u32_register16_(AWGAIN_32, &awgain_);
     this->read_u32_register16_(BWGAIN_32, &bwgain_);
-    // this->read_u32_register16_(0x0303, &ap_noload_);
-    // this->read_u32_register16_(0x0304, &var_noload_);
-    // this->read_u32_register16_(0x0305, &va_noload_);
-    // this->read_u16_register16_(0x0102, &config_);
-    // this->read_u8_register16_(0x0004, &lcycmode_);
-    // this->read_u32_register16_(0x0301, &accmode_);
+    this->read_u32_register16_(0x0303, &ap_noload_);
+    this->read_u32_register16_(0x0304, &var_noload_);
+    this->read_u32_register16_(0x0305, &va_noload_);
+    this->read_u16_register16_(0x0102, &config_);
+    this->read_u8_register16_(0x0004, &lcycmode_);
+    this->read_u32_register16_(0x0301, &accmode_);
     // The ACCMODE register (Address 0x201 and Address 0x301) includes two sign indication bits that show the sign of the active power of Current Channel A (APSIGN_A) and Current Channel B (APSIGN_B).
     // initial log after boot
     //             0x002D1400    00000000001011010001010000000000
@@ -160,6 +160,17 @@ void ADE7953::dump_config() {
   ESP_LOGCONFIG(TAG, "  VA_NOLOAD_32: 0x%08jX", (uintmax_t) va_noload_);
   ESP_LOGCONFIG(TAG, "  LCYCMODE_8: 0x%X", lcycmode_);
   ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
+  ESP_LOGD(TAG, "Debug SPI:");
+  uint8_t val8{0};
+  this->ade_read_8(0x0004, &val8);
+  ESP_LOGD(TAG, "  LCYCMODE : 0x0004 = 0x%02X (expect: 0x40)", val8);
+  uint16_t val16{0};
+  this->ade_read_16(0x0102, &val16);
+  ESP_LOGD(TAG, "  CONFIG   : 0x0102 = 0x%04X (expect: 0x8004)", val16);
+  uint32_t val32{0};
+  this->ade_read_32(0x0303, &val32);
+  ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08X (expect: 0x0000E419)", val32);
+
 }
 
 template<typename F>
@@ -224,12 +235,6 @@ void ADE7953::update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t
 void ADE7953::update() {
   if (!this->is_setup_)
     return;
-
-  // if (this->irq_pin_ != nullptr) {
-  //   // Read and reset interrupts
-  //   this->read_u8_register16_(0x32E);
-  //   this->read_u8_register16_(0x331);
-  // }
 
   // // Power factor
   // this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
