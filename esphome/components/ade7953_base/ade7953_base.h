@@ -119,13 +119,13 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   uint16_t config_;
   uint8_t lcycmode_;
 
-  bool apinva_;
-  bool apinvb_;
+  bool apinva_ = false;
+  bool apinvb_ = false;
 
   uint32_t last_update_;
 
-  float forward_active_energy_a_total{0};
-  float forward_active_energy_b_total{0};
+  float forward_active_energy_a_total = 0;
+  float forward_active_energy_b_total = 0;
 
   template<typename F> void update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
