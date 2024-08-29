@@ -199,7 +199,7 @@ async def register_ade7953(var, config):
     cg.add(var.set_apinvb(config.get(CONF_ACTIVE_POWER_INVERTED_B)))
 
     for key in [
-        # CONF_VOLTAGE,
+        CONF_VOLTAGE,
         CONF_FREQUENCY,
         # CONF_CURRENT_A,
         # CONF_CURRENT_B,

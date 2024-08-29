@@ -158,12 +158,12 @@ void ADE7953::dump_config() {
   ESP_LOGCONFIG(TAG, "  BIGAIN_32: 0x%08jX", (uintmax_t) bigain_);
   ESP_LOGCONFIG(TAG, "  AWGAIN_32: 0x%08jX", (uintmax_t) awgain_);
   ESP_LOGCONFIG(TAG, "  BWGAIN_32: 0x%08jX", (uintmax_t) bwgain_);
-  ESP_LOGCONFIG(TAG, "  ACCMODE_32: 0x%08jX", (uintmax_t) accmode_);
-  ESP_LOGCONFIG(TAG, "  AP_NOLOAD_32: 0x%08jX", (uintmax_t) ap_noload_);
-  ESP_LOGCONFIG(TAG, "  VAR_NOLOAD_32: 0x%08jX", (uintmax_t) var_noload_);
-  ESP_LOGCONFIG(TAG, "  VA_NOLOAD_32: 0x%08jX", (uintmax_t) va_noload_);
-  ESP_LOGCONFIG(TAG, "  LCYCMODE_8: 0x%X", lcycmode_);
-  ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
+  // ESP_LOGCONFIG(TAG, "  ACCMODE_32: 0x%08jX", (uintmax_t) accmode_);
+  // ESP_LOGCONFIG(TAG, "  AP_NOLOAD_32: 0x%08jX", (uintmax_t) ap_noload_);
+  // ESP_LOGCONFIG(TAG, "  VAR_NOLOAD_32: 0x%08jX", (uintmax_t) var_noload_);
+  // ESP_LOGCONFIG(TAG, "  VA_NOLOAD_32: 0x%08jX", (uintmax_t) va_noload_);
+  // ESP_LOGCONFIG(TAG, "  LCYCMODE_8: 0x%X", lcycmode_);
+  // ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
 }
 
 template<typename F>
