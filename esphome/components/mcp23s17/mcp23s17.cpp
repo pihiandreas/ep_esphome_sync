@@ -45,8 +45,6 @@ void MCP23S17::setup() {
 
   cmd = this->device_opcode_ & 0x8;
   addr = mcp23x17_base::MCP23X17_IOCONA;
-  uint8_t dlen = 1;
-  uint8_t buf[dlen] = {0};
   buf[0] = 0b00011000; // Enable HAEN pins for addressing
 
   this->enable();
