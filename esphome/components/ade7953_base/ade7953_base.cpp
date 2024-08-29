@@ -248,7 +248,7 @@ void ADE7953::update() {
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
   
   int32_t buf{0};
-  this->read_s32_register16_(0x031E, &buf)
+  this->read_s32_register16_(0x031E, &buf);
   float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
   // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
   // ESP_LOGD(TAG, "pref = %f", pref);
@@ -258,7 +258,7 @@ void ADE7953::update() {
   this->forward_active_energy_a_total += (aenergya / eref);
   this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
 
-  this->read_s32_register16_(0x031F, &buf)
+  this->read_s32_register16_(0x031F, &buf);
   float aenergyb = (float)buf * (this->apinvb_ ? -1.0f : 1.0f);
   // ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
   // ESP_LOGD(TAG, "pow b =  %.4f W", aenergyb / pref);
