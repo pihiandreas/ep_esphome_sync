@@ -188,7 +188,7 @@ void AdE7953Spi::read_s16_register16_(uint16_t reg, int16_t *value){
   this->transfer_byte(0x80);
   uint8_t recv[2];
   this->read_array(recv, 2);
-  *value = (static_cast<int16_t>(buf[0]) << 8) | (static_cast<int16_t>(buf[1]));
+  *value = (static_cast<int16_t>(recv[0]) << 8) | (static_cast<int16_t>(recv[1]));
   this->disable();
 #endif // USE_ARDUINO
 #ifdef USE_ESP_IDF
@@ -249,7 +249,7 @@ void AdE7953Spi::read_s32_register16_(uint16_t reg, int32_t *value) {
   this->transfer_byte(0x80);
   uint8_t recv[4];
   this->read_array(recv, 4);
-  *value = (static_cast<int32_t>(recv[0]) << 24) | (static_cast<int32_t>(recv[1]) << 16) | (static_cast<int32_t>(recv[2]) << 8) | (static_cast<int32_t>(burecvf[3]));
+  *value = (static_cast<int32_t>(recv[0]) << 24) | (static_cast<int32_t>(recv[1]) << 16) | (static_cast<int32_t>(recv[2]) << 8) | (static_cast<int32_t>(recv[3]));
   this->disable();
 #endif // USE_ARDUINO
 #ifdef USE_ESP_IDF
