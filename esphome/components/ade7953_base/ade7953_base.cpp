@@ -162,13 +162,13 @@ void ADE7953::dump_config() {
   ESP_LOGCONFIG(TAG, "  CONFIG_8: 0x%X", config_);
   ESP_LOGD(TAG, "Debug SPI:");
   uint8_t val8{0};
-  this->ade_read_8(0x0004, &val8);
+  this->read_u8_register16_(0x0004, &val8);
   ESP_LOGD(TAG, "  LCYCMODE : 0x0004 = 0x%02X (expect: 0x40)", val8);
   uint16_t val16{0};
-  this->ade_read_16(0x0102, &val16);
+  this->read_u16_register16_(0x0102, &val16);
   ESP_LOGD(TAG, "  CONFIG   : 0x0102 = 0x%04X (expect: 0x8004)", val16);
   uint32_t val32{0};
-  this->ade_read_32(0x0303, &val32);
+  this->read_u32_register16_(0x0303, &val32);
   ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08X (expect: 0x0000E419)", val32);
 
 }
