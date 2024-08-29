@@ -129,7 +129,7 @@ class SPIDelegateHw : public SPIDelegate {
 
 #ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
     ESP_LOGVV(TAG, "TX:  CMD[%02d  bits]: 0x%04X", cmd_bits, cmd);
-    ESP_LOGVV(TAG, "TX: ADDR[%02d  bits]: 0x%016jX", addr_bits, addr);
+    ESP_LOGVV(TAG, "TX: ADDR[%02d  bits]: 0x%016jX", addr_bits, address);
     char debug_buf[LOG_BUF_MAX_LEN];
     std::string debug_hex;
     if(data != nullptr && length > 0) {
