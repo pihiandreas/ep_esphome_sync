@@ -182,17 +182,27 @@ void AdE7953Spi::read_u16_register16_(uint16_t reg, uint16_t *value) {
 }
 
 void AdE7953Spi::read_s16_register16_(uint16_t reg, int16_t *value){
-  // int16_t in;
-  // // this->read_register16(a_register, reinterpret_cast<uint8_t *>(&in), sizeof(in));
-  // this->enable();
-  // this->write_byte16(a_register);
-  // this->transfer_byte(0x80);
-  // uint8_t recv[2];
-  // this->read_array(recv, 2);
-  // // in = encode_int16(recv[0], recv[1]);
-  // in = 0;
-  // this->disable();
-  // return in;
+#ifdef USE_ARDUINO
+  this->enable();
+  this->write_byte16(reg);
+  this->transfer_byte(0x80);
+  uint8_t recv[2];
+  this->read_array(recv, 2);
+  *value = (static_cast<int16_t>(buf[0]) << 8) | (static_cast<int16_t>(buf[1]));
+  this->disable();
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  uint16_t cmd = reg;
+  uint64_t rw = 0x80;
+  uint8_t dlen = 2;
+  uint8_t buf[dlen] = {0};
+
+  this->enable();
+  this->read_cmd_addr_data(16, cmd, 8, rw, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+
+  *value = (static_cast<int16_t>(buf[0]) << 8) | (static_cast<int16_t>(buf[1]));
+#endif  // USE_ESP_IDF
 }
 
 void AdE7953Spi::read_u32_register16_(uint16_t reg, uint32_t *value) {
@@ -233,17 +243,27 @@ void AdE7953Spi::read_u32_register16_(uint16_t reg, uint32_t *value) {
 }
 
 void AdE7953Spi::read_s32_register16_(uint16_t reg, int32_t *value) {
-  // int32_t in;
-  // // this->read_register16(a_register, reinterpret_cast<uint8_t *>(&in), sizeof(in));
-  // this->enable();
-  // this->write_byte16(a_register);
-  // this->transfer_byte(0x80);
-  // uint8_t recv[4];
-  // this->read_array(recv, 4);
-  // // in = encode_int32(recv[0], recv[1], recv[2], recv[3]);
-  // in = 0;
-  // this->disable();
-  // return in;
+#ifdef USE_ARDUINO
+  this->enable();
+  this->write_byte16(reg);
+  this->transfer_byte(0x80);
+  uint8_t recv[4];
+  this->read_array(recv, 4);
+  *value = (static_cast<int32_t>(recv[0]) << 24) | (static_cast<int32_t>(recv[1]) << 16) | (static_cast<int32_t>(recv[2]) << 8) | (static_cast<int32_t>(burecvf[3]));
+  this->disable();
+#endif // USE_ARDUINO
+#ifdef USE_ESP_IDF
+  uint16_t cmd = reg;
+  uint64_t rw = 0x80;
+  uint8_t dlen = 4;
+  uint8_t buf[dlen] = {0};
+
+  this->enable();
+  this->read_cmd_addr_data(16, cmd, 8, rw, (uint8_t *) &buf, dlen, 1);
+  this->disable();
+
+  *value = (static_cast<int32_t>(buf[0]) << 24) | (static_cast<int32_t>(buf[1]) << 16) | (static_cast<int32_t>(buf[2]) << 8) | (static_cast<int32_t>(buf[3]));
+#endif  // USE_ESP_IDF
 }
 
 

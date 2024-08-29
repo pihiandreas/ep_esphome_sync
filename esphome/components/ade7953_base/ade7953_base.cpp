@@ -235,9 +235,9 @@ void ADE7953::update() {
   if (!this->is_setup_)
     return;
 
-  // // Power factor
-  // this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
-  // this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
+  // Power factor
+  this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
+  this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
 
   // // Active power & Forward active energy (both from 0x031E / 0x031F)
   // const uint32_t now = millis();

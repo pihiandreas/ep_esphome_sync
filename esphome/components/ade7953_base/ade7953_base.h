@@ -93,14 +93,14 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   sensor::Sensor *frequency_sensor_{nullptr};
   sensor::Sensor *current_a_sensor_{nullptr};
   sensor::Sensor *current_b_sensor_{nullptr};
+  sensor::Sensor *power_factor_a_sensor_{nullptr};
+  sensor::Sensor *power_factor_b_sensor_{nullptr};
   sensor::Sensor *apparent_power_a_sensor_{nullptr};
   sensor::Sensor *apparent_power_b_sensor_{nullptr};
   sensor::Sensor *active_power_a_sensor_{nullptr};
   sensor::Sensor *active_power_b_sensor_{nullptr};
   sensor::Sensor *reactive_power_a_sensor_{nullptr};
   sensor::Sensor *reactive_power_b_sensor_{nullptr};
-  sensor::Sensor *power_factor_a_sensor_{nullptr};
-  sensor::Sensor *power_factor_b_sensor_{nullptr};
   sensor::Sensor *forward_active_energy_a_sensor_{nullptr};
   sensor::Sensor *forward_active_energy_b_sensor_{nullptr};
   
