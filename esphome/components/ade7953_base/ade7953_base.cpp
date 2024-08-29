@@ -250,10 +250,6 @@ void ADE7953::update() {
   int32_t buf;
   this->read_s32_register16_(0x031E, &buf);
   float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
-  // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
-  // ESP_LOGD(TAG, "pref = %f", pref);
-  // ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
-  // ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
   if (this->active_power_a_sensor_ != nullptr) {
     this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
   }
