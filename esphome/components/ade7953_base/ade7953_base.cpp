@@ -235,44 +235,44 @@ void ADE7953::update() {
   if (!this->is_setup_)
     return;
 
-  // // Power factor
-  // this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
-  // this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
+  // Power factor
+  this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
+  this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
 
-  // // Active power & Forward active energy (both from 0x031E / 0x031F)
-  // const uint32_t now = millis();
-  // const auto diff = now - this->last_update_;
-  // this->last_update_ = now;
-  // // prevent DIV/0
-  // float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
-  // float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
+  // Active power & Forward active energy (both from 0x031E / 0x031F)
+  const uint32_t now = millis();
+  const auto diff = now - this->last_update_;
+  this->last_update_ = now;
+  // prevent DIV/0
+  float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
+  float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
   
-  // int32_t buf{0};
-  // this->read_s32_register16_(0x031E, &buf);
-  // float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
-  // // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
-  // // ESP_LOGD(TAG, "pref = %f", pref);
-  // // ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
-  // // ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
-  // this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
-  // this->forward_active_energy_a_total += (aenergya / eref);
-  // this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
+  int32_t buf{0};
+  this->read_s32_register16_(0x031E, &buf);
+  float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
+  // ESP_LOGD(TAG, "diff = %" PRIu32 " ", diff);
+  // ESP_LOGD(TAG, "pref = %f", pref);
+  // ESP_LOGD(TAG, "aenergya[0x031E] =  %.4f", aenergya);
+  // ESP_LOGD(TAG, "pow a =  %.4f W", aenergya / pref);
+  this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
+  this->forward_active_energy_a_total += (aenergya / eref);
+  this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
 
-  // this->read_s32_register16_(0x031F, &buf);
-  // float aenergyb = (float)buf * (this->apinvb_ ? -1.0f : 1.0f);
-  // // ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
-  // // ESP_LOGD(TAG, "pow b =  %.4f W", aenergyb / pref);
-  // this->active_power_b_sensor_->publish_state(( abs(aenergyb / pref) < 5.0 ) ? 0.0f : (aenergyb / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
-  // this->forward_active_energy_b_total += (aenergyb / eref);
-  // this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
+  this->read_s32_register16_(0x031F, &buf);
+  float aenergyb = (float)buf * (this->apinvb_ ? -1.0f : 1.0f);
+  // ESP_LOGD(TAG, "aenergyb[0x031F] =  %.4f", aenergyb);
+  // ESP_LOGD(TAG, "pow b =  %.4f W", aenergyb / pref);
+  this->active_power_b_sensor_->publish_state(( abs(aenergyb / pref) < 5.0 ) ? 0.0f : (aenergyb / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
+  this->forward_active_energy_b_total += (aenergyb / eref);
+  this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
 
-  // // Reactive power
-  // this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, 0.0f, [pref](float val) { return val / pref; });
-  // this->update_sensor_from_s32_register16_(this->reactive_power_b_sensor_, 0x0321, 0.0f, [pref](float val) { return val / pref; });
+  // Reactive power
+  this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, 0.0f, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->reactive_power_b_sensor_, 0x0321, 0.0f, [pref](float val) { return val / pref; });
 
-  // // Apparent power
-  // this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, 0.0f, [pref](float val) { return val / pref; });
-  // this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, 0.0f, [pref](float val) { return val / pref; });
+  // Apparent power
+  this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, 0.0f, [pref](float val) { return val / pref; });
+  this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, 0.0f, [pref](float val) { return val / pref; });
 
   // Current
   this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, 0.05f, [](float val) { return val / ADE7953_IREF; });
