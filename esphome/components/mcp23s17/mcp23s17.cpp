@@ -67,6 +67,9 @@ void MCP23S17::setup() {
 void MCP23S17::dump_config() {
   ESP_LOGCONFIG(TAG, "MCP23S17:");
   LOG_PIN("  CS Pin: ", this->cs_);
+  ESP_LOGD(TAG, "SPI Debug:");
+  ESP_LOGD(TAG, "  olat_a_: 0x%02X", this->olat_a_);
+  ESP_LOGD(TAG, "  olat_b_: 0x%02X", this->olat_b_);
 }
 
 bool MCP23S17::read_reg(uint8_t reg, uint8_t *value) {
