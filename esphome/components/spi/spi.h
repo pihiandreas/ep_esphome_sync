@@ -212,12 +212,12 @@ class SPIDelegate {
     esph_log_e("spi_device", "write_cmd_addr_data not implemented");
   }
 
-  virtual void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address,
+  virtual void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr,
                                    uint8_t *data, size_t length, uint8_t bus_width) {
     esph_log_e("spi_device", "read_cmd_addr_data not implemented");
   }
 
-  virtual void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address,
+  virtual void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr,
                                    uint8_t dummy_bits, uint8_t *data, size_t length, uint8_t bus_width) {
     esph_log_e("spi_device", "read_cmd_addr_data not implemented");
   }
@@ -450,11 +450,11 @@ class SPIDevice : public SPIClient {
 
   void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr, uint8_t dummy_bits = 0,
                            uint8_t *data, size_t length, uint8_t bus_width = 1) {
-    this->delegate_->read_cmd_addr_data(cmd_bits, cmd, addr_bits, address, dummy_bits, data, length, bus_width);
+    this->delegate_->read_cmd_addr_data(cmd_bits, cmd, addr_bits, addr, dummy_bits, data, length, bus_width);
   }
-  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address, uint8_t *data,
+  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr, uint8_t *data,
                            size_t length, uint8_t bus_width = 1) {
-    this->delegate_->read_cmd_addr_data(cmd_bits, cmd, addr_bits, address, 0, data, length, bus_width);
+    this->delegate_->read_cmd_addr_data(cmd_bits, cmd, addr_bits, addr, 0, data, length, bus_width);
   }
 
   void write_byte(uint8_t data) { this->delegate_->write_array(&data, 1); }
