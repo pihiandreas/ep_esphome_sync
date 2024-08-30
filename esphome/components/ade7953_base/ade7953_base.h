@@ -83,6 +83,8 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
 
   void update() override;
 
+  float get_setup_priority() const override { return setup_priority::DATA; }
+
  protected:
   bool is_setup_{false};
   sensor::Sensor *voltage_sensor_{nullptr};
