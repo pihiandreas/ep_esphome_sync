@@ -448,7 +448,7 @@ class SPIDevice : public SPIClient {
     this->delegate_->write_cmd_addr_data(cmd_bits, cmd, addr_bits, address, data, length, bus_width);
   }
 
-  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr, uint8_t *data, 
+  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr, uint8_t *data,
                           size_t length, uint8_t bus_width = 1, uint8_t dummy_bits) {
     this->delegate_->read_cmd_addr_data(cmd_bits, cmd, addr_bits, addr, dummy_bits, data, length, bus_width);
   }
