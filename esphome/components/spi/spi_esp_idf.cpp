@@ -1,5 +1,6 @@
 #include "spi.h"
 #include <vector>
+#include <inttypes.h>
 
 namespace esphome {
 namespace spi {
@@ -128,8 +129,8 @@ class SPIDelegateHw : public SPIDelegate {
     }
 
 #ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
-    ESP_LOGVV(TAG, "[%08jX] TX:  CMD[%02d  bits]: 0x%04X", micros(), cmd_bits, cmd);
-    ESP_LOGVV(TAG, "[%08jX] TX: ADDR[%02d  bits]: 0x%016jX", micros(), addr_bits, address);
+    ESP_LOGVV(TAG, "[" PRIu32 "] TX:  CMD[%02d  bits]: 0x%04X", micros(), cmd_bits, cmd);
+    ESP_LOGVV(TAG, "[" PRIu32 "] TX: ADDR[%02d  bits]: 0x%016jX", micros(), addr_bits, address);
     char debug_buf[LOG_BUF_MAX_LEN];
     std::string debug_hex;
     if(data != nullptr && length > 0) {
@@ -137,7 +138,7 @@ class SPIDelegateHw : public SPIDelegate {
         snprintf(debug_buf, sizeof(debug_buf), "%02X", data[i]);
         debug_hex += debug_buf;
       }
-      ESP_LOGVV(TAG, "[%08jX] TX: DATA[%02d bytes]: 0x%s %s", micros(), length, debug_hex.c_str(), length > LOG_BUF_MAX_LEN ? "..." : "");
+      ESP_LOGVV(TAG, "[" PRIu32 "] TX: DATA[%02d bytes]: 0x%s %s", micros(), length, debug_hex.c_str(), length > LOG_BUF_MAX_LEN ? "..." : "");
     }    
 #endif
 
@@ -201,8 +202,8 @@ class SPIDelegateHw : public SPIDelegate {
     }
 
 #ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
-    ESP_LOGVV(TAG, "[%08jX] TX:  CMD[%02d  bits]: 0x%04X", micros(), cmd_bits, cmd);
-    ESP_LOGVV(TAG, "[%08jX] TX: ADDR[%02d  bits]: 0x%016jX", micros(), addr_bits, addr);
+    ESP_LOGVV(TAG, "[" PRIu32 "] TX:  CMD[%02d  bits]: 0x%04X", micros(), cmd_bits, cmd);
+    ESP_LOGVV(TAG, "[" PRIu32 "] TX: ADDR[%02d  bits]: 0x%016jX", micros(), addr_bits, addr);
 #endif
 
     desc.base.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD | SPI_TRANS_VARIABLE_DUMMY;
@@ -241,7 +242,7 @@ class SPIDelegateHw : public SPIDelegate {
         snprintf(debug_buf, sizeof(debug_buf), "%02X", data[i]);
         debug_hex += debug_buf;
       }
-      ESP_LOGVV(TAG, "[%08jX] RX: DATA[%02d bytes]: 0x%s %s", micros(), length, debug_hex.c_str(), length > LOG_BUF_MAX_LEN ? "..." : "");
+      ESP_LOGVV(TAG, "[" PRIu32 "] RX: DATA[%02d bytes]: 0x%s %s", micros(), length, debug_hex.c_str(), length > LOG_BUF_MAX_LEN ? "..." : "");
     }
 #endif
 
