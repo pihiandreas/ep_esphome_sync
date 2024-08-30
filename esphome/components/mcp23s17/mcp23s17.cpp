@@ -67,8 +67,12 @@ void MCP23S17::setup() {
 void MCP23S17::dump_config() {
   ESP_LOGCONFIG(TAG, "MCP23S17:");
   LOG_PIN("  CS Pin: ", this->cs_);
-  ESP_LOGCONFIG(TAG, "  SPI Data rate: %d MHz",   (unsigned) (this->data_rate_ / 1000000));
   ESP_LOGCONFIG(TAG, "  SPI Mode:      %d",   (unsigned) (this->mode_));
+  if (this->data_rate_ < 1000000) {
+    ESP_LOGCONFIG(TAG, "  SPI Data rate: %" PRId32 "kHz", this->data_rate_ / 1000);
+  } else {
+    ESP_LOGCONFIG(TAG, "  SPI Data rate: %" PRId32 "MHz", this->data_rate_ / 1000000);
+  }
   ESP_LOGD(TAG, "SPI Debug:");
   ESP_LOGD(TAG, "  olat_a_: 0x%02X", this->olat_a_);
   ESP_LOGD(TAG, "  olat_b_: 0x%02X", this->olat_b_);
