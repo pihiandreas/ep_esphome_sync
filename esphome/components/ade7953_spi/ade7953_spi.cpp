@@ -1,6 +1,7 @@
 #include "ade7953_spi.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
+#include <inttypes.h>
 
 namespace esphome {
 namespace ade7953_spi {
