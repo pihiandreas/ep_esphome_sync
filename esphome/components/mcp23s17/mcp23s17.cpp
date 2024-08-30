@@ -1,5 +1,6 @@
 #include "mcp23s17.h"
 #include "esphome/core/log.h"
+#include <inttypes.h>
 
 namespace esphome {
 namespace mcp23s17 {
