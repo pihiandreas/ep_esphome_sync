@@ -35,7 +35,7 @@ void AdE7953Spi::dump_config() {
 // - a full extra R/W-byte (8bits) needs to be sent (on MOSI) after the registry id, READ = 0x80 / WRITE = 0x0
 // - no dummy bits needed between CMD+ADDR-phase and DATA-phase
 // - 'Normal SPI' = 1 data lane
-// - when using 'framework: esp-idf':
+// - When using 'framework: esp-idf':
 //   - a WRITE-transaction (on MOSI) can be completed in a single function call to 'write_cmd_addr_data()' by calling with:
 //       - COMMAND-phase = registry (length: 16)
 //       - ADDRESS-phase = R/W-byte (length: 8)
