@@ -121,7 +121,7 @@ class SPIDelegateHw : public SPIDelegate {
    * @param bus_width The number of data lines to use
    */
   void write_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address, const uint8_t *data,
-                           size_t length, uint8_t bus_width) override {
+                           size_t length, uint8_t bus_width, uint8_t dummy_bits) override {
     spi_transaction_ext_t desc = {};
     if (length == 0 && cmd_bits == 0 && addr_bits == 0) {
       esph_log_w(TAG, "Nothing to transfer");
@@ -151,7 +151,7 @@ class SPIDelegateHw : public SPIDelegate {
     }
     desc.command_bits = cmd_bits;
     desc.address_bits = addr_bits;
-    desc.dummy_bits = 0;
+    desc.dummy_bits = dummy_bits;
     desc.base.rxlength = 0;
     desc.base.cmd = cmd;
     desc.base.addr = address;
