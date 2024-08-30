@@ -15,7 +15,12 @@ void AdE7953Spi::setup() {
 void AdE7953Spi::dump_config() {
   ESP_LOGCONFIG(TAG, "ADE7953_spi:");
   LOG_PIN("  CS Pin: ", this->cs_);
-  ESP_LOGCONFIG(TAG, "  SPI Data rate: %dMHz",   (unsigned) (this->data_rate_ / 1000000));
+  ESP_LOGCONFIG(TAG, "  SPI Mode:      %d",   (unsigned) (this->mode_));
+  if (this->data_rate_ < 1000000) {
+    ESP_LOGCONFIG(TAG, "  SPI Data rate: %" PRId32 "kHz", this->data_rate_ / 1000);
+  } else {
+    ESP_LOGCONFIG(TAG, "  SPI Data rate: %" PRId32 "MHz", this->data_rate_ / 1000000);
+  }
   ade7953_base::ADE7953::dump_config();
 }
 
