@@ -217,6 +217,11 @@ class SPIDelegate {
     esph_log_e("spi_device", "read_cmd_addr_data not implemented");
   }
 
+  virtual void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t address,
+                                   uint8_t dummy_bits, uint8_t *data, size_t length, uint8_t bus_width) {
+    esph_log_e("spi_device", "read_cmd_addr_data not implemented");
+  }
+
   // write 16 bits
   virtual void write16(uint16_t data) {
     if (this->bit_order_ == BIT_ORDER_MSB_FIRST) {
