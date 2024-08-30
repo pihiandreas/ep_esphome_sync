@@ -190,8 +190,8 @@ class SPIDelegateHw : public SPIDelegate {
    * @param rx_length Number of data bytes to read
    * @param bus_width The number of data lines to use
    */
-  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr, uint8_t dummy_bits,
-                           uint8_t *data, size_t length, uint8_t bus_width) override {
+  void read_cmd_addr_data(size_t cmd_bits, uint16_t cmd, size_t addr_bits, uint64_t addr,
+                           uint8_t *data, size_t length, uint8_t bus_width, uint8_t dummy_bits) override {
     spi_transaction_ext_t desc = {};
     if (length == 0 && cmd_bits == 0 && addr_bits == 0) {
       esph_log_w(TAG, "Nothing to transfer");
