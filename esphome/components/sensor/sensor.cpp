@@ -43,9 +43,9 @@ StateClass Sensor::get_state_class() {
 }
 
 void Sensor::publish_state(float state) {
-  int64_t t[2] = {0};
-  t[0] = timestamp(); //
-  ESP_LOGW(TAG, "[%u] publish_state() started", t[0]);
+  // int64_t t[2] = {0};
+  // t[0] = timestamp(); //
+  // ESP_LOGW(TAG, "[%u] publish_state() started", t[0]);
   this->raw_state = state;
   this->raw_callback_.call(state);
 
@@ -56,8 +56,8 @@ void Sensor::publish_state(float state) {
   } else {
     this->filter_list_->input(state);
   }
-  t[1] = timestamp(); 
-  ESP_LOGW(TAG, "[%u] publish_state() done in          %.3f ms", t[1], (float)((t[1] - t[0]) / 1000.0) );
+  // t[1] = timestamp(); 
+  // ESP_LOGW(TAG, "[%u] publish_state() done in          %.3f ms", t[1], (float)((t[1] - t[0]) / 1000.0) );
 }
 
 void Sensor::add_on_state_callback(std::function<void(float)> &&callback) { this->callback_.add(std::move(callback)); }
