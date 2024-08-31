@@ -6,6 +6,12 @@ namespace sensor {
 
 static const char *const TAG = "sensor";
 
+#ifdef USE_ESP_IDF
+int64_t timestamp() { return esp_timer_get_time(); }
+#else
+int64_t timestamp() { return (int64_t)micros(); }
+#endif // USE_ESP_IDF
+
 std::string state_class_to_string(StateClass state_class) {
   switch (state_class) {
     case STATE_CLASS_MEASUREMENT:
@@ -37,6 +43,9 @@ StateClass Sensor::get_state_class() {
 }
 
 void Sensor::publish_state(float state) {
+  int64_t t[2] = {0};
+  t[0] = timestamp(); //
+  ESP_LOGW(TAG, "[%u] Update loop started", t[0]);
   this->raw_state = state;
   this->raw_callback_.call(state);
 
@@ -47,6 +56,7 @@ void Sensor::publish_state(float state) {
   } else {
     this->filter_list_->input(state);
   }
+  ESP_LOGW(TAG, "[%u] Update loop done in          %.3f ms", t[1], (float)((t[1] - t[0]) / 1000.0) );
 }
 
 void Sensor::add_on_state_callback(std::function<void(float)> &&callback) { this->callback_.add(std::move(callback)); }

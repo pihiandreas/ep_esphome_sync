@@ -129,7 +129,7 @@ class SPIDelegateHw : public SPIDelegate {
     }
 
 #ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
-    uint32_t t = micros();
+    int64_t t = esp_timer_get_time();
     ESP_LOGVV(TAG, "[%u] TX:  CMD[%02d  bits]: 0x%04X", t, cmd_bits, cmd);
     ESP_LOGVV(TAG, "[%u] TX: ADDR[%02d  bits]: 0x%016jX", t, addr_bits, address);
     char debug_buf[LOG_BUF_MAX_LEN];
