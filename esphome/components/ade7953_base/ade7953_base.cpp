@@ -169,7 +169,7 @@ void ADE7953::dump_config() {
   ESP_LOGD(TAG, "  CONFIG   : 0x0102 = 0x%04X (default: 0x8004)", val16);
   uint32_t val32{0};
   this->read_u32_register16_(0x0303, &val32);
-  ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08X (default: 0x0000E419)", val32);
+  ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08" PRIx32 " (default: 0x0000E419)", val32);
 }
 
 template<typename F>
