@@ -52,10 +52,13 @@ struct ADE7953DataStruct {
   uint32_t current_rms_b = 0;
   int16_t power_factor_a = 0;
   int16_t power_factor_b = 0;
-  int32_t active_power_a = 0;
-  int32_t active_power_b = 0;
-  int32_t energy_a = 0;
-  int32_t energy_b = 0;
+  int32_t active_energy_a = 0;
+  int32_t active_energy_b = 0;
+  int32_t reactive_energy_a = 0;
+  int32_t reactive_energy_b = 0;
+  int32_t apparent_energy_a = 0;
+  int32_t apparent_energy_b = 0;
+  uint64_t ts_diff = 0;
   bool ready = false;
 };
 
@@ -95,8 +98,8 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   void set_reactive_power_a_sensor(sensor::Sensor *reactive_power_a) { reactive_power_a_sensor_ = reactive_power_a; }
   void set_reactive_power_b_sensor(sensor::Sensor *reactive_power_b) { reactive_power_b_sensor_ = reactive_power_b; }
 
-  void set_forward_active_energy_a_sensor(sensor::Sensor *forward_active_energy_a) { forward_active_energy_a_sensor_ = forward_active_energy_a; }
-  void set_forward_active_energy_b_sensor(sensor::Sensor *forward_active_energy_b) { forward_active_energy_b_sensor_ = forward_active_energy_b; }
+  void set_active_energy_a_sensor(sensor::Sensor *sens) { active_energy_a_sensor_ = sens; }
+  void set_active_energy_b_sensor(sensor::Sensor *sens) { active_energy_b_sensor_ = sens; }
 
   void setup() override;
 
@@ -124,11 +127,11 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   sensor::Sensor *active_power_b_sensor_{nullptr};
   sensor::Sensor *reactive_power_a_sensor_{nullptr};
   sensor::Sensor *reactive_power_b_sensor_{nullptr};
-  sensor::Sensor *forward_active_energy_a_sensor_{nullptr};
-  sensor::Sensor *forward_active_energy_b_sensor_{nullptr};
+  sensor::Sensor *active_energy_a_sensor_{nullptr};
+  sensor::Sensor *active_energy_b_sensor_{nullptr};
 
-  float forward_active_energy_a_total = 0.0f;
-  float forward_active_energy_b_total = 0.0f;
+  float active_energy_a_total = 0.0f;
+  float active_energy_b_total = 0.0f;
   bool apinva_ = false;
   bool apinvb_ = false;
 

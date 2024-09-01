@@ -8,7 +8,7 @@ namespace ade7953_base {
 
 static const char *const TAG = "ade7953";
 
-enum ADE7953_VALUES { VRMS, FREQ, IRMSA, IRMSB, APOWERA, APOWERB, PFA, PFB, LAST_IDX };                           // indices for values
+enum ADE7953_VALUES { VRMS, FREQ, IRMSA, IRMSB, AENERGYA, AENERGYB, RENERGYA, RENERGYB, APENERGYA, APENERGYB, PFA, PFB, LAST_IDX };                           // indices for values
 // from https://github.com/arendst/Tasmota/blob/development/tasmota/tasmota_xnrg_energy/xnrg_07_ade7953.ino
 // #define ADE7953_PREF              1540       // 4194304 / (1540 / 1000) = 2723574 (= WGAIN, VAGAIN and VARGAIN)
 // #define ADE7953_UREF              26000      // 4194304 / (26000 / 10000) = 1613194 (= VGAIN)
@@ -156,8 +156,8 @@ void ADE7953::dump_config() {
   LOG_SENSOR("  ", "Active Power B Sensor", this->active_power_b_sensor_);
   LOG_SENSOR("  ", "Reactive Power A Sensor", this->reactive_power_a_sensor_);
   LOG_SENSOR("  ", "Reactive Power B Sensor", this->reactive_power_b_sensor_);
-  LOG_SENSOR("  ", "Forward Active Energy A Sensor", this->forward_active_energy_a_sensor_);
-  LOG_SENSOR("  ", "Forward Active Energy B Sensor", this->forward_active_energy_b_sensor_);
+  LOG_SENSOR("  ", "Active Energy A Sensor", this->active_energy_a_sensor_);
+  LOG_SENSOR("  ", "Active Energy B Sensor", this->active_energy_b_sensor_);
   ESP_LOGCONFIG(TAG, "  Invert Active Power A: %d", this->apinva_);
   ESP_LOGCONFIG(TAG, "  Invert Active Power B: %d", this->apinvb_);
   ESP_LOGCONFIG(TAG, "  PGA_V_8: 0x%X", pga_v_);
@@ -197,65 +197,6 @@ uint64_t ADE7953::timestamp_() {
 #endif // USE_GPTIMER
 }
 
-template<typename F>
-void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, float absmin, F &&f) {
-  if (sensor == nullptr) {
-    return;
-  }
-  uint32_t dat{0};
-  this->read_u32_register16_(a_register, &dat);
-  float val = f(dat);
-
-  if (abs(val) < absmin) {
-    val = 0.0f;
-  }
-  sensor->publish_state(val);
-}
-
-template<typename F>
-void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_t a_register, float absmin,  F &&f) {
-  if (sensor == nullptr) {
-    return;
-  }
-  int32_t dat{0};
-  this->read_s32_register16_(a_register, &dat);
-  float val = f(dat);
-  if (abs(val) < absmin) {
-    val = 0.0f;
-  }
-  sensor->publish_state(val);
-}
-
-template<typename F>
-void ADE7953::update_sensor_from_s16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
-  if (sensor == nullptr) {
-    return;
-  }
-  int16_t dat{0};
-  this->read_s16_register16_(a_register, &dat);
-  sensor->publish_state(f((float)dat));
-}
-
-template<typename F>
-void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
-  if (sensor == nullptr) {
-    return;
-  }
-  uint16_t dat{0};
-  this->read_u16_register16_(a_register, &dat);
-  sensor->publish_state(f((float)dat));
-}
-
-template<typename F>
-void ADE7953::update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
-  if (sensor == nullptr) {
-    return;
-  }
-  uint8_t dat{0};
-  this->read_u8_register16_(a_register, &dat);
-  sensor->publish_state(f((float)dat));
-}
-
 void ADE7953::get_data_() {
 
   uint16_t u16 = 0;
@@ -271,40 +212,26 @@ void ADE7953::get_data_() {
   this->read_u32_register16_(0x031A, &(this->data_.current_rms_a));
   this->read_u32_register16_(0x031B, &(this->data_.current_rms_b));
 
-  // // this->read_once_(hlw811x_mux::HLW811X_REG_RMSU, 3, &value);
-  // // ESP_LOGD(TAG, "Got RMSU raw %u", value);
-  // // this->data_.voltage_rms = (value >= 0x800000) ? 0 : value;
+  // Power factor
+  this->read_s16_register16_(0x010A, &(this->data_.power_factor_a));
+  this->read_s16_register16_(0x010B, &(this->data_.power_factor_b));
 
-  // // uint8_t u8 = 0;
+  // Record time and diff to last update
+  const uint64_t now = timestamp_();
+  this->data_.ts_diff = now - this->last_update_;
+  this->last_update_ = now;
 
-  // // this->read_once_(hlw811x_mux::HLW811X_REG_UFREQ, 2, &value);
-  // this->read_u16_register8_(HLW811X_REG_UFREQ, &(this->data_.frequency));
-  // // ESP_LOGD(TAG, "Got UFREQ raw %u", this->data_.frequency);
+  // Active power & active energy (both from 0x031E / 0x031F = Active Energy A/B)
+  this->read_s32_register16_(0x031E, &(this->data_.active_energy_a));
+  this->read_s32_register16_(0x031F, &(this->data_.active_energy_b));
 
-  // this->read_s32zp_s24_register8_(HLW811X_REG_RMSIA, &s32);
-  // // ESP_LOGD(TAG, "Got RMSIA raw %u", s32);
-  // // this->data_.current_rms_a[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : s32;  // No-load threshold of ~10mA TODO: absmin()
+  // Reactive power & reactive energy (both from 0x0320 / 0x0321 = Reactive Energy A/B)
+  this->read_s32_register16_(0x0320, &(this->data_.reactive_energy_a));
+  this->read_s32_register16_(0x0321, &(this->data_.reactive_energy_b));
 
-  // this->read_s32zp_s24_register8_(HLW811X_REG_RMSIB, &s32);
-  // // ESP_LOGD(TAG, "Got RMSIB raw %u", s32);
-  // // this->data_.current_rms_b[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : s32;  // No-load threshold of ~10mA TODO: absmin()
-
-  // // TODO: sample power factor and energy, HLW channel switch between
-  // // this->read_once_(hlw811x_mux::HLW811X_REG_POWERFACTOR, 3, &value);
-  // // ESP_LOGD(TAG, "Got POWERFACTOR raw %u", value);
-  // // this->data_.power_factor_a[ch] = value;  // No-load threshold of ~10mA
-
-  // // this->read_once_(hlw811x_mux::HLW811X_REG_POWERPA, 4, &value);
-  // // ESP_LOGD(TAG, "Got POWERPA raw %u", value);
-  // // this->data_.active_power_a[ch] = (0 == this->data_.current_rms_a[ch]) ? 0 : value;
-  // this->read_s32zp_s24_register8_(HLW811X_REG_POWERPA, &s32);
-  // // ESP_LOGD(TAG, "Got POWERPA raw %u", s32);
-  // this->data_.active_power_a[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : ((uint32_t) abs((int) s32));;
-
-  // this->read_s32zp_s24_register8_(HLW811X_REG_POWERPB, &s32);
-  // // ESP_LOGD(TAG, "Got POWERPB raw %u", s32);
-  // this->data_.active_power_b[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : ((uint32_t) abs((int) s32));;
-
+  // Apparent power & reactive energy (both from 0x0322 / 0x0323 = Apparent Energy A/B)
+  this->read_s32_register16_(0x0322, &(this->data_.apparent_energy_a));
+  this->read_s32_register16_(0x0323, &(this->data_.apparent_energy_b));
 }
 
 
@@ -317,28 +244,50 @@ void ADE7953::publish_data_() {
   val[VRMS] = ((float)this->data_.voltage_rms) / ADE7953_UREF;
   val[IRMSA] = ((float)this->data_.current_rms_a) / ADE7953_IREF;
   val[IRMSB] = ((float)this->data_.current_rms_b) / ADE7953_IREF;
+  val[PFA] = ((float)this->data_.power_factor_a) / (0x7FFF / 100.0f);
+  val[PFB] = ((float)this->data_.power_factor_b) / (0x7FFF / 100.0f);
+  val[AENERGYA] = (float)this->data_.active_energy_a * (this->apinva_ ? -1.0f : 1.0f);
+  val[AENERGYB] = (float)this->data_.active_energy_b * (this->apinva_ ? -1.0f : 1.0f);
+  val[RENERGYA] = (float)this->data_.reactive_energy_a * (this->apinva_ ? -1.0f : 1.0f);
+  val[RENERGYB] = (float)this->data_.reactive_energy_b * (this->apinva_ ? -1.0f : 1.0f);
+  val[APENERGYA] = (float)this->data_.apparent_energy_a * (this->apinva_ ? -1.0f : 1.0f);
+  val[APENERGYB] = (float)this->data_.apparent_energy_b * (this->apinva_ ? -1.0f : 1.0f);
+
+  float PREF = ADE7953_WATTSEC_PREF * (this->data_.ts_diff < 10000 ? 10000 : this->data_.ts_diff) / 1000000.0f;
+  float EREF = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
 
   if (this->frequency_sensor_ != nullptr) this->frequency_sensor_->publish_state(val[FREQ]);
   if (this->voltage_sensor_ != nullptr) this->voltage_sensor_->publish_state(val[VRMS]);
   if (this->current_a_sensor_ != nullptr) this->current_a_sensor_->publish_state(val[IRMSA]);
   if (this->current_b_sensor_ != nullptr) this->current_b_sensor_->publish_state(val[IRMSB]);
-
-  // Update Voltage channel/sensors
-  // VoltageChannel *vchan = this->voltage_channel_v_;
-  // if ( vchan != nullptr ) {
-  //   if (vchan->frequency != nullptr) vchan->frequency->publish_state(val[UFREQ]);
-  // }
-  // // Update Power channel/sensors for currently active channel 
-  // EnergyChannel *echan[2] = { this->energy_channel_ia_, this->energy_channel_ib_ };
-  // if ( echan[0] != nullptr ) {
-
-  //   if (echan[0]->current != nullptr) echan[0]->current->publish_state(val[RMS_IA]);
-
-  // }
-  // if ( echan[1] != nullptr ) {
-
-  //   if (echan[1]->current != nullptr) echan[1]->current->publish_state(val[RMS_IB]);
-  // }
+  if (this->power_factor_a_sensor_ != nullptr) this->power_factor_a_sensor_->publish_state(val[PFA]);
+  if (this->power_factor_b_sensor_ != nullptr) this->power_factor_b_sensor_->publish_state(val[PFA]);
+  if (this->active_power_a_sensor_ != nullptr) {
+    this->active_power_a_sensor_->publish_state(( abs(val[AENERGYA] / PREF) < 5.0 ) ? 0.0f : (val[AENERGYA] / PREF) ); // publish readings below 5W as 0 and  -0.0W as 0.0W
+  }
+  if (this->active_power_b_sensor_ != nullptr) {
+    this->active_power_b_sensor_->publish_state(( abs(val[AENERGYB] / PREF) < 5.0 ) ? 0.0f : (val[AENERGYB] / PREF) ); // publish readings below 5W as 0 and  -0.0W as 0.0W
+  }
+  if (this->reactive_power_a_sensor_ != nullptr) {
+    this->reactive_power_a_sensor_->publish_state(( abs(val[RENERGYA] / PREF) < 5.0 ) ? 0.0f : (val[RENERGYA] / PREF) ); // publish readings below 5 VAr as 0.0 and  -0.0 VAr as 0.0
+  }
+  if (this->active_power_b_sensor_ != nullptr) {
+    this->active_power_b_sensor_->publish_state(( abs(val[RENERGYB] / PREF) < 5.0 ) ? 0.0f : (val[RENERGYB] / PREF) ); // publish readings below 5 VAr as 0.0 and  -0.0 VAr as 0.0
+  }
+  if (this->apparent_power_a_sensor_ != nullptr) {
+    this->apparent_power_a_sensor_->publish_state(( abs(val[APENERGYA] / PREF) < 5.0 ) ? 0.0f : (val[APENERGYA] / PREF) ); // publish readings below 5 VA as 0.0 and  -0.0 VA as 0.0
+  }
+  if (this->apparent_power_b_sensor_ != nullptr) {
+    this->apparent_power_b_sensor_->publish_state(( abs(val[APENERGYB] / PREF) < 5.0 ) ? 0.0f : (val[APENERGYB] / PREF) ); // publish readings below 5 VA as 0.0 and  -0.0 VA as 0.0
+  }
+  if (this->active_energy_a_sensor_ != nullptr) {
+    this->active_energy_a_total += (val[AENERGYA] / EREF);
+    this->active_energy_a_sensor_->publish_state(this->active_energy_a_total);
+  }
+  if (this->active_energy_b_sensor_ != nullptr) {
+    this->active_energy_b_total += (val[AENERGYB] / EREF);
+    this->active_energy_b_sensor_->publish_state(this->active_energy_b_total);
+  }
 }
 
 void ADE7953::update() {
@@ -350,53 +299,14 @@ void ADE7953::update() {
   t[ti++] = timestamp_();
   // ESP_LOGD(TAG, "[%lld] Update loop started", t[0]);
 
-  // Power factor
-  this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
-  this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
-
-  // Active power & Forward active energy (both from 0x031E / 0x031F)
-  const uint64_t now = timestamp_();
-  const auto diff = now - this->last_update_;
-  this->last_update_ = now;
-  // prevent DIV/0
-  float pref = ADE7953_WATTSEC_PREF * (diff < 10000 ? 10000 : diff) / 1000000.0f;
-  float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
-
-  int32_t buf;
-  this->read_s32_register16_(0x031E, &buf);
-  float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
-  if (this->active_power_a_sensor_ != nullptr) {
-    this->active_power_a_sensor_->publish_state(( abs(aenergya / pref) < 5.0 ) ? 0.0f : (aenergya / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
-  }
-  if (this->forward_active_energy_a_sensor_ != nullptr) {
-    this->forward_active_energy_a_total += (aenergya / eref);
-    this->forward_active_energy_a_sensor_->publish_state(this->forward_active_energy_a_total);
-  }
-  this->read_s32_register16_(0x031F, &buf);
-  float aenergyb = (float)buf * (this->apinvb_ ? -1.0f : 1.0f);
-  if (this->active_power_b_sensor_ != nullptr) {
-    this->active_power_b_sensor_->publish_state(( abs(aenergyb / pref) < 5.0 ) ? 0.0f : (aenergyb / pref) ); // don't publish readings below 5W & -0.0W = 0.0W
-  }
-  if (this->forward_active_energy_b_sensor_ != nullptr) {
-    this->forward_active_energy_b_total += (aenergyb / eref);
-    this->forward_active_energy_b_sensor_->publish_state(this->forward_active_energy_b_total);
-  }
-
-  // Reactive power
-  this->update_sensor_from_s32_register16_(this->reactive_power_a_sensor_, 0x0320, 0.0f, [pref](float val) { return val / pref; });
-  this->update_sensor_from_s32_register16_(this->reactive_power_b_sensor_, 0x0321, 0.0f, [pref](float val) { return val / pref; });
-
-  // Apparent power
-  this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, 0.0f, [pref](float val) { return val / pref; });
-  this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, 0.0f, [pref](float val) { return val / pref; });
-
-  t[ti++] = timestamp_();
   this->get_data_();
   t[ti++] = timestamp_();
+
   this->publish_data_();
   t[ti++] = timestamp_();
+
   ESP_LOGD(TAG, "[%lld] Update loop done in            %5.3f ms", t[ti-1], (float)((t[ti-1] - t[0]) / 1000.0) );
-  ESP_LOGD(TAG, "[%lld]   Get data %5.3f ms,   publish %5.3f ms", t[ti-1], (float)((t[2] - t[1]) / 1000.0), (float)((t[3] - t[2]) / 1000.0) );
+  ESP_LOGD(TAG, "[%lld]   Get data %5.3f ms,   publish %5.3f ms", t[ti-1], (float)((t[1] - t[0]) / 1000.0), (float)((t[2] - t[1]) / 1000.0) );
 
 }
 

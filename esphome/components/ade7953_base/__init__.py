@@ -44,8 +44,8 @@ CONF_CURRENT_GAIN_A = "current_gain_a"
 CONF_CURRENT_GAIN_B = "current_gain_b"
 CONF_ACTIVE_POWER_GAIN_A = "active_power_gain_a"
 CONF_ACTIVE_POWER_GAIN_B = "active_power_gain_b"
-CONF_FORWARD_ACTIVE_ENERGY_A = "forward_active_energy_a"
-CONF_FORWARD_ACTIVE_ENERGY_B = "forward_active_energy_b"
+CONF_ACTIVE_ENERGY_A = "active_energy_a"
+CONF_ACTIVE_ENERGY_B = "active_energy_b"
 CONF_ACTIVE_POWER_INVERTED_A = "active_power_inverted_a"
 CONF_ACTIVE_POWER_INVERTED_B = "active_power_inverted_b"
 PGA_GAINS = {
@@ -135,13 +135,13 @@ ADE7953_CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_POWER_FACTOR,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
-        cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_A): sensor.sensor_schema(
+        cv.Optional(CONF_ACTIVE_ENERGY_A): sensor.sensor_schema(
             unit_of_measurement=UNIT_WATT_HOURS,
             accuracy_decimals=2,
             device_class=DEVICE_CLASS_ENERGY,
             state_class=STATE_CLASS_TOTAL_INCREASING,
         ),
-        cv.Optional(CONF_FORWARD_ACTIVE_ENERGY_B): sensor.sensor_schema(
+        cv.Optional(CONF_ACTIVE_ENERGY_B): sensor.sensor_schema(
             unit_of_measurement=UNIT_WATT_HOURS,
             accuracy_decimals=2,
             device_class=DEVICE_CLASS_ENERGY,
