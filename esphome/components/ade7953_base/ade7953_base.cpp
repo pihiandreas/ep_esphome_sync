@@ -43,6 +43,7 @@ static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
 // Energy->active_power[channel] = (float)Ade7953.active_power[channel] / divider;
 // e.g. FFFFEF4F => (-4273 / 2.011) / 6.57699742 = 323.0674 W
 
+
 void ADE7953::setup() {
 
   // The chip might take up to 100ms to initialise
