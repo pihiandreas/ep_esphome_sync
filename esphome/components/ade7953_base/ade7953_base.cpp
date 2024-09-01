@@ -267,6 +267,10 @@ void ADE7953::get_data_() {
   // Voltage
   this->read_u32_register16_(0x031C, &(this->data_.voltage_rms));
 
+  // Current
+  this->read_u32_register16_(0x031A, &(this->data_.current_rms_a));
+  this->read_u32_register16_(0x031B, &(this->data_.current_rms_b));
+
   // // this->read_once_(hlw811x_mux::HLW811X_REG_RMSU, 3, &value);
   // // ESP_LOGD(TAG, "Got RMSU raw %u", value);
   // // this->data_.voltage_rms = (value >= 0x800000) ? 0 : value;
@@ -311,14 +315,13 @@ void ADE7953::publish_data_() {
   float val[LAST_IDX] = {0.0};
   val[FREQ] = 223750.0f / (1.0f + (float)this->data_.frequency);
   val[VRMS] = ((float)this->data_.voltage_rms) / ADE7953_UREF;
-
-  // val[UFREQ] = 3579545.8 / (8 * (float)this->data_.frequency);
-  // val[RMS_IA] = (float)this->data_.current_rms_a[ch] / this->divider_by_unit_(RMS_IAC);
-  // val[RMS_IB] = (float)this->data_.current_rms_b[ch] / this->divider_by_unit_(RMS_IBC);
-  // // val[RMS_IB] =
+  val[IRMSA] = ((float)this->data_.current_rms_a) / ADE7953_IREF;
+  val[IRMSB] = ((float)this->data_.current_rms_b) / ADE7953_IREF;
 
   if (this->frequency_sensor_ != nullptr) this->frequency_sensor_->publish_state(val[FREQ]);
   if (this->voltage_sensor_ != nullptr) this->voltage_sensor_->publish_state(val[VRMS]);
+  if (this->current_a_sensor_ != nullptr) this->current_a_sensor_->publish_state(val[IRMSA]);
+  if (this->current_b_sensor_ != nullptr) this->current_b_sensor_->publish_state(val[IRMSB]);
 
   // Update Voltage channel/sensors
   // VoltageChannel *vchan = this->voltage_channel_v_;
@@ -386,10 +389,6 @@ void ADE7953::update() {
   // Apparent power
   this->update_sensor_from_s32_register16_(this->apparent_power_a_sensor_, 0x0322, 0.0f, [pref](float val) { return val / pref; });
   this->update_sensor_from_s32_register16_(this->apparent_power_b_sensor_, 0x0323, 0.0f, [pref](float val) { return val / pref; });
-
-  // Current
-  this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, 0.05f, [](float val) { return val / ADE7953_IREF; });
-  this->update_sensor_from_u32_register16_(this->current_b_sensor_, 0x031B, 0.05f, [](float val) { return val / ADE7953_IREF; });
 
   t[ti++] = timestamp_();
   this->get_data_();

@@ -46,8 +46,8 @@ static const uint32_t BVAGAIN_32 =
     0x390;  // BVAGAIN, (R/W)  Default: 0x400000, Unsigned,Apparent power gain (Current Channel B)(32 bit)
 
 struct ADE7953DataStruct {
-  uint32_t voltage_rms = 0;
   uint16_t frequency = 0;
+  uint32_t voltage_rms = 0;
   uint32_t current_rms_a = 0;
   uint32_t current_rms_b = 0;
   int16_t power_factor_a = 0;
