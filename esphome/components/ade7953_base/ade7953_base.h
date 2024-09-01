@@ -6,6 +6,10 @@
 
 #include <vector>
 
+#if defined(USE_ESP_IDF) && USE_ESP_IDF_VERSION_CODE >= VERSION_CODE(5, 0, 0)
+#include "driver/gptimer.h"
+#endif  // defined(USE_ESP_IDF) && USE_ESP_IDF_VERSION_CODE >= VERSION_CODE(5, 0, 0)
+
 namespace esphome {
 namespace ade7953_base {
 
@@ -86,6 +90,10 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   float get_setup_priority() const override { return setup_priority::DATA; }
 
  protected:
+#ifdef USE_ESP_IDF
+  gptimer_handle_t gptimer = NULL;
+#endif // USE_ESP_IDF
+
   bool is_setup_{false};
   sensor::Sensor *voltage_sensor_{nullptr};
   sensor::Sensor *frequency_sensor_{nullptr};
@@ -121,6 +129,7 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   bool apinvb_ = false;
 
   uint32_t last_update_;
+  uint64_t timestamp_();
 
   float forward_active_energy_a_total = 0.0f;
   float forward_active_energy_b_total = 0.0f;

@@ -174,6 +174,16 @@ void ADE7953::dump_config() {
   ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08jX (default: 0x0000E419)", (uintmax_t) val32);
 }
 
+uint64_t ADE7953::timestamp_() {
+#ifdef USE_ESP_IDF
+  uint64_t count;
+  gptimer_get_raw_count(this->gptimer, &count);
+  return count;
+#else
+  return (uint64_t)micros();
+#endif // USE_ESP_IDF
+}
+
 template<typename F>
 void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_t a_register, float absmin, F &&f) {
   if (sensor == nullptr) {
@@ -237,6 +247,11 @@ void ADE7953::update() {
   if (!this->is_setup_)
     return;
 
+  uint64_t t[5] = {0};
+  uint8_t ti = 0;
+  t[ti++] = timestamp_();
+  // ESP_LOGD(TAG, "[%lld] Update loop started", t[0]);
+
   // Power factor
   this->update_sensor_from_s16_register16_(this->power_factor_a_sensor_, 0x010A, [](float val) { return val / (0x7FFF / 100.0f); });
   this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
@@ -286,6 +301,11 @@ void ADE7953::update() {
   
   // Frequency
   this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
+
+
+  t[ti++] = timestamp_(); 
+  ESP_LOGD(TAG, "[%lld] Update loop done in            %5.3f ms", t[ti-1], (float)((t[ti-1] - t[0]) / 1000.0) );
+  // ESP_LOGD(TAG, "[%lld]   Get data %5.3f ms,   publish %5.3f ms", t[ti-1], (float)((t[1] - t[0]) / 1000.0), (float)((t[2] - t[1]) / 1000.0) );
 
 }
 
