@@ -207,8 +207,8 @@ async def register_ade7953(var, config):
         CONF_ACTIVE_POWER_B,
         CONF_REACTIVE_POWER_A,
         CONF_REACTIVE_POWER_B,
-        CONF_FORWARD_ACTIVE_ENERGY_A,
-        CONF_FORWARD_ACTIVE_ENERGY_B,
+        CONF_ACTIVE_ENERGY_A,
+        CONF_ACTIVE_ENERGY_B,
     ]:
         if key not in config:
             continue
