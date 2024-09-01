@@ -14,7 +14,7 @@ void AdE7953I2c::dump_config() {
 }
 
 void AdE7953I2c::read_u8_register16_(uint16_t reg, uint8_t *value) {
-  this->read_register16(a_register, value, sizeof(in));
+  this->read_register16(reg, value, sizeof(in));
 }
 
 void AdE7953I2c::read_u16_register16_(uint16_t reg, uint16_t *value) {
