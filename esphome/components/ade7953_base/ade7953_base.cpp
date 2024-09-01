@@ -170,7 +170,7 @@ void ADE7953::dump_config() {
   uint32_t val32{0};
   this->read_u32_register16_(0x0303, &val32);
   // ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08" PRIx32 " (default: 0x0000E419)", val32);
-  ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08jX (default: 0x0000E419)", val32);
+  ESP_LOGD(TAG, "  AP_NOLOAD: 0x0303 = 0x%08jX (default: 0x0000E419)", (uintmax_t) val32);
 }
 
 template<typename F>
