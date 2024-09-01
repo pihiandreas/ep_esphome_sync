@@ -20,7 +20,7 @@ static const float ADE7953_WATTSEC_PREF = ADE7953_PREF * ADE7953_PREF / 3600.0f;
 static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
 
 // Esphome 'active power' calculation from 'active energy' 0x31E/0x31F:
-// POW(Watt) = READVALUE (int32_t -> float) / (ADE7953_WATTSEC_PREF * time_diff_seconds) => 322W = 4240 / (6,58777778 * 2) =  
+// POW(Watt) = READVALUE (int32_t -> float) / (ADE7953_WATTSEC_PREF * time_diff_seconds) => 322W = 4240 / (6,58777778 * 2) =
 // Getting negative value on Shelly2PM+_v0.1.9 2022-6-2:
 // [VV][i2c.idf:197]: 0x38 TX 031E
 // [VV][i2c.idf:173]: 0x38 RX FFFFEF4F
@@ -54,7 +54,7 @@ void ADE7953::setup() {
     // Setup LINE CYCLE ACCUMULATION MODE
     // 1. PFMODE (bit 3) = 1 in CONFIG (0x102)
     // 0b 10000000 00000100 = 0x8004 = default
-    // 0b 10000000 00001100 = 0x800C = default + bit3 
+    // 0b 10000000 00001100 = 0x800C = default + bit3
     this->write_u16_register16_(0x0102, 0x800C);
     //this->write_u16_register16_(0x0102, 0x8004);
     // 2. Enable line cycle accumulation mode, xLWATT and xLVA to 1 on LCYCMODE (0x004)
@@ -62,7 +62,7 @@ void ADE7953::setup() {
     // 0b01111111 = 0x7F = enabled on both channels for xLWATT, xLVA and xLVAR
     // this->write_u8_register16_(0x0004, 0x7F);
     this->write_u8_register16_(0x0004, 0x40);
-    
+
     // // Setup no load detection and thresholds
     // this->write_u32_register16_(0x0001, 0x07);                       // ADE7953_DISNOLOAD on, Disable no load detection, required before setting thresholds
     // // this->write_u32_register16_(0x0303, ADE7953_NO_LOAD_THRESHOLD);  // AP_NOLOAD, Set no load treshold for active power, default: 0x00E419 (58393)
@@ -82,7 +82,7 @@ void ADE7953::setup() {
     this->write_u32_register16_(AWGAIN_32, awgain_);
     this->write_u32_register16_(BWGAIN_32, bwgain_);
 
-    // IRMSOS 
+    // IRMSOS
     // this->write_s32_register16_(0x0386, 0xF7D6); // AIRMSOS
     // this->write_s32_register16_(0x0392, 0xF7D6); // BIRMSOS
 
@@ -108,7 +108,7 @@ void ADE7953::setup() {
     // ACCMODE_32: 0x002D3800 => 00000000001011010011100000000000
     //                           10987654321098765432109876543210
     //                            3         2         1         0
-    // 1:0  = 00 = AWATTACC => set to 
+    // 1:0  = 00 = AWATTACC => set to
     // 3:2  = 00 = BWATTACC
     // 5:4  = 00 = AVARACC
     // 7:6  = 00 = BVARACC
@@ -193,7 +193,7 @@ void ADE7953::update_sensor_from_u32_register16_(sensor::Sensor *sensor, uint16_
   this->read_u32_register16_(a_register, &dat);
   float val = f(dat);
 
-  if (abs(val) < absmin) { 
+  if (abs(val) < absmin) {
     val = 0.0f;
   }
   sensor->publish_state(val);
@@ -207,7 +207,7 @@ void ADE7953::update_sensor_from_s32_register16_(sensor::Sensor *sensor, uint16_
   int32_t dat{0};
   this->read_s32_register16_(a_register, &dat);
   float val = f(dat);
-  if (abs(val) < absmin) { 
+  if (abs(val) < absmin) {
     val = 0.0f;
   }
   sensor->publish_state(val);
@@ -263,7 +263,7 @@ void ADE7953::update() {
   // prevent DIV/0
   float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
-  
+
   int32_t buf;
   this->read_s32_register16_(0x031E, &buf);
   float aenergya = (float)buf * (this->apinva_ ? -1.0f : 1.0f);
@@ -298,12 +298,12 @@ void ADE7953::update() {
 
   // Voltage
   this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, 0.0f, [](float val) { return val / ADE7953_UREF; });
-  
+
   // Frequency
   this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
 
 
-  t[ti++] = timestamp_(); 
+  t[ti++] = timestamp_();
   ESP_LOGD(TAG, "[%lld] Update loop done in            %5.3f ms", t[ti-1], (float)((t[ti-1] - t[0]) / 1000.0) );
   // ESP_LOGD(TAG, "[%lld]   Get data %5.3f ms,   publish %5.3f ms", t[ti-1], (float)((t[1] - t[0]) / 1000.0), (float)((t[2] - t[1]) / 1000.0) );
 
