@@ -131,7 +131,7 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   bool apinva_ = false;
   bool apinvb_ = false;
 
-  uint32_t last_update_;
+  uint64_t last_update_;
   uint64_t timestamp_();
 
   float forward_active_energy_a_total = 0.0f;

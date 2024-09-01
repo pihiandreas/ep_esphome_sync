@@ -137,7 +137,7 @@ void ADE7953::setup() {
     // 19   = 1  = ACTNLOAD_B
     // 20   = 0  = VANLOAD_B
     // 21   = 1  = VARNLOAD_B
-    this->last_update_ = millis();
+    this->last_update_ = timestamp_();
     this->is_setup_ = true;
   });
 }
@@ -269,11 +269,11 @@ void ADE7953::update() {
   this->update_sensor_from_s16_register16_(this->power_factor_b_sensor_, 0x010B, [](float val) { return val / (0x7FFF / 100.0f); });
 
   // Active power & Forward active energy (both from 0x031E / 0x031F)
-  const uint32_t now = millis();
+  const uint64_t now = timestamp_();
   const auto diff = now - this->last_update_;
   this->last_update_ = now;
   // prevent DIV/0
-  float pref = ADE7953_WATTSEC_PREF * (diff < 10 ? 10 : diff) / 1000.0f;
+  float pref = ADE7953_WATTSEC_PREF * (diff < 10000 ? 10000 : diff) / 1000000.0f;
   float eref = ADE7953_WATTSEC_PREF * 3600.0f; // to Wh
 
   int32_t buf;
