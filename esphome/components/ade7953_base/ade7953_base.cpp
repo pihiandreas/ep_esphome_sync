@@ -262,17 +262,10 @@ void ADE7953::get_data_() {
   int32_t s32 = 0;
 
   // Frequency
-  // this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
   this->read_u16_register16_(0x010E, &(this->data_.frequency));
-// template<typename F>
-// void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
-//   if (sensor == nullptr) {
-//     return;
-//   }
-//   uint16_t dat{0};
-//   this->read_u16_register16_(a_register, &dat);
-//   sensor->publish_state(f((float)dat));
-// }
+
+  // Voltage
+  this->read_u32_register16_(0x031C, &(this->data_.voltage_rms));
 
   // // this->read_once_(hlw811x_mux::HLW811X_REG_RMSU, 3, &value);
   // // ESP_LOGD(TAG, "Got RMSU raw %u", value);
@@ -314,28 +307,19 @@ void ADE7953::get_data_() {
 
 void ADE7953::publish_data_() {
 
-  // this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
-  // this->read_u16_register16_(0x010E, &(this->data_.frequency));
-// template<typename F>
-// void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
-//   if (sensor == nullptr) {
-//     return;
-//   }
-//   uint16_t dat{0};
-//   this->read_u16_register16_(a_register, &dat);
-//   sensor->publish_state(f((float)dat));
-// }
-
-  // // Convert values
-  float val[LAST_IDX];
+  // // Convert values to floats
+  float val[LAST_IDX] = {0.0};
   val[FREQ] = 223750.0f / (1.0f + (float)this->data_.frequency);
-  // val[RMS_U] = (float)this->data_.voltage_rms / this->divider_by_unit_(RMS_UC);
+  val[VRMS] = ((float)this->data_.voltage_rms) / ADE7953_UREF;
+
   // val[UFREQ] = 3579545.8 / (8 * (float)this->data_.frequency);
   // val[RMS_IA] = (float)this->data_.current_rms_a[ch] / this->divider_by_unit_(RMS_IAC);
   // val[RMS_IB] = (float)this->data_.current_rms_b[ch] / this->divider_by_unit_(RMS_IBC);
   // // val[RMS_IB] =
 
   if (this->frequency_sensor_ != nullptr) this->frequency_sensor_->publish_state(val[FREQ]);
+  if (this->voltage_sensor_ != nullptr) this->voltage_sensor_->publish_state(val[VRMS]);
+
   // Update Voltage channel/sensors
   // VoltageChannel *vchan = this->voltage_channel_v_;
   // if ( vchan != nullptr ) {
@@ -406,9 +390,6 @@ void ADE7953::update() {
   // Current
   this->update_sensor_from_u32_register16_(this->current_a_sensor_, 0x031A, 0.05f, [](float val) { return val / ADE7953_IREF; });
   this->update_sensor_from_u32_register16_(this->current_b_sensor_, 0x031B, 0.05f, [](float val) { return val / ADE7953_IREF; });
-
-  // Voltage
-  this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, 0.0f, [](float val) { return val / ADE7953_UREF; });
 
   t[ti++] = timestamp_();
   this->get_data_();
