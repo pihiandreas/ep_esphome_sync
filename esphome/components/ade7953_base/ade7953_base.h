@@ -25,7 +25,7 @@ static const uint8_t PGA_IB_8 =
 
 static const uint32_t AIGAIN_32 =
     0x380;  // AIGAIN, (R/W)   Default: 0x400000, Unsigned,Current channel gain (Current Channel A)(32 bit)
-static const uint32_t AVGAIN_32 = 
+static const uint32_t AVGAIN_32 =
     0x381;  // AVGAIN, (R/W)   Default: 0x400000, Unsigned,Voltage channel gain(32 bit)
 static const uint32_t AWGAIN_32 =
     0x382;  // AWGAIN, (R/W)   Default: 0x400000, Unsigned,Active power gain (Current Channel A)(32 bit)
@@ -44,6 +44,20 @@ static const uint32_t BVARGAIN_32 =
     0x38F;  // BVARGAIN, (R/W) Default: 0x400000, Unsigned,Reactive power gain (Current Channel B)(32 bit)
 static const uint32_t BVAGAIN_32 =
     0x390;  // BVAGAIN, (R/W)  Default: 0x400000, Unsigned,Apparent power gain (Current Channel B)(32 bit)
+
+struct ADE7953DataStruct {
+  uint32_t voltage_rms = 0;
+  uint16_t frequency = 0;
+  uint32_t current_rms_a = 0;
+  uint32_t current_rms_b = 0;
+  int16_t power_factor_a = 0;
+  int16_t power_factor_b = 0;
+  int32_t active_power_a = 0;
+  int32_t active_power_b = 0;
+  int32_t energy_a = 0;
+  int32_t energy_b = 0;
+  bool ready = false;
+};
 
 class ADE7953 : public PollingComponent, public sensor::Sensor {
  public:
@@ -113,6 +127,11 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   sensor::Sensor *forward_active_energy_a_sensor_{nullptr};
   sensor::Sensor *forward_active_energy_b_sensor_{nullptr};
 
+  float forward_active_energy_a_total = 0.0f;
+  float forward_active_energy_b_total = 0.0f;
+  bool apinva_ = false;
+  bool apinvb_ = false;
+
   uint8_t pga_v_;
   uint8_t pga_ia_;
   uint8_t pga_ib_;
@@ -128,14 +147,12 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   uint16_t config_;
   uint8_t lcycmode_;
 
-  bool apinva_ = false;
-  bool apinvb_ = false;
+  ADE7953DataStruct data_;
 
   uint64_t last_update_;
   uint64_t timestamp_();
-
-  float forward_active_energy_a_total = 0.0f;
-  float forward_active_energy_b_total = 0.0f;
+  void get_data_();
+  void publish_data_();
 
   template<typename F> void update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);
   template<typename F> void update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f);

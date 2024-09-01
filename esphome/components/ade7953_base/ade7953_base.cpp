@@ -8,6 +8,7 @@ namespace ade7953_base {
 
 static const char *const TAG = "ade7953";
 
+enum ADE7953_VALUES { VRMS, FREQ, IRMSA, IRMSB, APOWERA, APOWERB, PFA, PFB, LAST_IDX };                           // indices for values
 // from https://github.com/arendst/Tasmota/blob/development/tasmota/tasmota_xnrg_energy/xnrg_07_ade7953.ino
 // #define ADE7953_PREF              1540       // 4194304 / (1540 / 1000) = 2723574 (= WGAIN, VAGAIN and VARGAIN)
 // #define ADE7953_UREF              26000      // 4194304 / (26000 / 10000) = 1613194 (= VGAIN)
@@ -255,6 +256,104 @@ void ADE7953::update_sensor_from_u8_register16_(sensor::Sensor *sensor, uint16_t
   sensor->publish_state(f((float)dat));
 }
 
+void ADE7953::get_data_() {
+
+  uint16_t u16 = 0;
+  int32_t s32 = 0;
+
+  // Frequency
+  // this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
+  this->read_u16_register16_(0x010E, &(this->data_.frequency));
+// template<typename F>
+// void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+//   if (sensor == nullptr) {
+//     return;
+//   }
+//   uint16_t dat{0};
+//   this->read_u16_register16_(a_register, &dat);
+//   sensor->publish_state(f((float)dat));
+// }
+
+  // // this->read_once_(hlw811x_mux::HLW811X_REG_RMSU, 3, &value);
+  // // ESP_LOGD(TAG, "Got RMSU raw %u", value);
+  // // this->data_.voltage_rms = (value >= 0x800000) ? 0 : value;
+
+  // // uint8_t u8 = 0;
+
+  // // this->read_once_(hlw811x_mux::HLW811X_REG_UFREQ, 2, &value);
+  // this->read_u16_register8_(HLW811X_REG_UFREQ, &(this->data_.frequency));
+  // // ESP_LOGD(TAG, "Got UFREQ raw %u", this->data_.frequency);
+
+  // this->read_s32zp_s24_register8_(HLW811X_REG_RMSIA, &s32);
+  // // ESP_LOGD(TAG, "Got RMSIA raw %u", s32);
+  // // this->data_.current_rms_a[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : s32;  // No-load threshold of ~10mA TODO: absmin()
+
+  // this->read_s32zp_s24_register8_(HLW811X_REG_RMSIB, &s32);
+  // // ESP_LOGD(TAG, "Got RMSIB raw %u", s32);
+  // // this->data_.current_rms_b[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : s32;  // No-load threshold of ~10mA TODO: absmin()
+
+  // // TODO: sample power factor and energy, HLW channel switch between
+  // // this->read_once_(hlw811x_mux::HLW811X_REG_POWERFACTOR, 3, &value);
+  // // ESP_LOGD(TAG, "Got POWERFACTOR raw %u", value);
+  // // this->data_.power_factor_a[ch] = value;  // No-load threshold of ~10mA
+
+  // // this->read_once_(hlw811x_mux::HLW811X_REG_POWERPA, 4, &value);
+  // // ESP_LOGD(TAG, "Got POWERPA raw %u", value);
+  // // this->data_.active_power_a[ch] = (0 == this->data_.current_rms_a[ch]) ? 0 : value;
+  // this->read_s32zp_s24_register8_(HLW811X_REG_POWERPA, &s32);
+  // // ESP_LOGD(TAG, "Got POWERPA raw %u", s32);
+  // this->data_.active_power_a[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : ((uint32_t) abs((int) s32));;
+
+  // this->read_s32zp_s24_register8_(HLW811X_REG_POWERPB, &s32);
+  // // ESP_LOGD(TAG, "Got POWERPB raw %u", s32);
+  // this->data_.active_power_b[ch] = ((s32 >= 0x800000) || (s32 < 1600)) ? 0 : ((uint32_t) abs((int) s32));;
+
+}
+
+
+
+void ADE7953::publish_data_() {
+
+  // this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
+  // this->read_u16_register16_(0x010E, &(this->data_.frequency));
+// template<typename F>
+// void ADE7953::update_sensor_from_u16_register16_(sensor::Sensor *sensor, uint16_t a_register, F &&f) {
+//   if (sensor == nullptr) {
+//     return;
+//   }
+//   uint16_t dat{0};
+//   this->read_u16_register16_(a_register, &dat);
+//   sensor->publish_state(f((float)dat));
+// }
+
+  // // Convert values
+  float val[LAST_IDX];
+  val[FREQ] = 223750.0f / (1.0f + (float)this->data_.frequency);
+  // val[RMS_U] = (float)this->data_.voltage_rms / this->divider_by_unit_(RMS_UC);
+  // val[UFREQ] = 3579545.8 / (8 * (float)this->data_.frequency);
+  // val[RMS_IA] = (float)this->data_.current_rms_a[ch] / this->divider_by_unit_(RMS_IAC);
+  // val[RMS_IB] = (float)this->data_.current_rms_b[ch] / this->divider_by_unit_(RMS_IBC);
+  // // val[RMS_IB] =
+
+  if (this->frequency_sensor_ != nullptr) this->frequency_sensor_->publish_state(val[FREQ]);
+  // Update Voltage channel/sensors
+  // VoltageChannel *vchan = this->voltage_channel_v_;
+  // if ( vchan != nullptr ) {
+  //   if (vchan->frequency != nullptr) vchan->frequency->publish_state(val[UFREQ]);
+  // }
+  // // Update Power channel/sensors for currently active channel 
+  // EnergyChannel *echan[2] = { this->energy_channel_ia_, this->energy_channel_ib_ };
+  // if ( echan[0] != nullptr ) {
+
+  //   if (echan[0]->current != nullptr) echan[0]->current->publish_state(val[RMS_IA]);
+
+  // }
+  // if ( echan[1] != nullptr ) {
+
+  //   if (echan[1]->current != nullptr) echan[1]->current->publish_state(val[RMS_IB]);
+  // }
+}
+
 void ADE7953::update() {
   if (!this->is_setup_)
     return;
@@ -311,13 +410,13 @@ void ADE7953::update() {
   // Voltage
   this->update_sensor_from_u32_register16_(this->voltage_sensor_, 0x031C, 0.0f, [](float val) { return val / ADE7953_UREF; });
 
-  // Frequency
-  this->update_sensor_from_u16_register16_(this->frequency_sensor_, 0x010E, [](float val) { return 223750.0f / (1 + val); });
-
-
+  t[ti++] = timestamp_();
+  this->get_data_();
+  t[ti++] = timestamp_();
+  this->publish_data_();
   t[ti++] = timestamp_();
   ESP_LOGD(TAG, "[%lld] Update loop done in            %5.3f ms", t[ti-1], (float)((t[ti-1] - t[0]) / 1000.0) );
-  // ESP_LOGD(TAG, "[%lld]   Get data %5.3f ms,   publish %5.3f ms", t[ti-1], (float)((t[1] - t[0]) / 1000.0), (float)((t[2] - t[1]) / 1000.0) );
+  ESP_LOGD(TAG, "[%lld]   Get data %5.3f ms,   publish %5.3f ms", t[ti-1], (float)((t[2] - t[1]) / 1000.0), (float)((t[3] - t[2]) / 1000.0) );
 
 }
 
