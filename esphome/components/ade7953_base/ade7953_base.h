@@ -7,6 +7,9 @@
 #include <vector>
 
 #if defined(USE_ESP_IDF) && USE_ESP_IDF_VERSION_CODE >= VERSION_CODE(5, 0, 0)
+#ifndef USE_GPTIMER
+#define USE_GPTIMER
+#endif // USE_GPTIMER
 #include "driver/gptimer.h"
 #endif  // defined(USE_ESP_IDF) && USE_ESP_IDF_VERSION_CODE >= VERSION_CODE(5, 0, 0)
 
@@ -90,9 +93,9 @@ class ADE7953 : public PollingComponent, public sensor::Sensor {
   float get_setup_priority() const override { return setup_priority::DATA; }
 
  protected:
-#ifdef USE_ESP_IDF
+#ifdef USE_GPTIMER
   gptimer_handle_t gptimer = NULL;
-#endif // USE_ESP_IDF
+#endif // USE_GPTIMER
 
   bool is_setup_{false};
   sensor::Sensor *voltage_sensor_{nullptr};

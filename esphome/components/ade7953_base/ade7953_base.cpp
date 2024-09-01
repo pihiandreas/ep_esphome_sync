@@ -46,6 +46,18 @@ static const uint16_t ADE7953_NO_LOAD_THRESHOLD = 29196;
 
 void ADE7953::setup() {
 
+#ifdef USE_GPTIMER
+  gptimer_config_t timer_config = {
+    .clk_src = GPTIMER_CLK_SRC_DEFAULT,
+    .direction = GPTIMER_COUNT_UP,
+    .resolution_hz = 1000000, // 1MHz, 1 tick=1us
+  };
+  ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &(this->gptimer)));
+  ESP_ERROR_CHECK(gptimer_enable(this->gptimer));
+  ESP_ERROR_CHECK(gptimer_start(this->gptimer));
+
+#endif // USE_GPTIMER
+
   // The chip might take up to 100ms to initialise
   this->set_timeout(100, [this]() {
     // this->write_u8_register16_(0x0010, 0x04);
@@ -175,13 +187,13 @@ void ADE7953::dump_config() {
 }
 
 uint64_t ADE7953::timestamp_() {
-#ifdef USE_ESP_IDF
+#ifdef USE_GPTIMER
   uint64_t count;
   gptimer_get_raw_count(this->gptimer, &count);
   return count;
 #else
   return (uint64_t)micros();
-#endif // USE_ESP_IDF
+#endif // USE_GPTIMER
 }
 
 template<typename F>
